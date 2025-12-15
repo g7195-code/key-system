@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鍵の利用状況</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #333; }
+    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .status-out { background-color: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
+    .status-in { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+    th { background: #fafafa; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">🔑 鍵管理システム</h2>
+  
+  <div id="current-status" class="status-card" style="display:none;">確認中...</div>
+
+  <div style="background:white; border-radius:10px; padding:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+    <h3 style="margin:0 0 10px 0; font-size:16px; color:#666;">最近の履歴</h3>
+    <table id="log-table">
+      <thead><tr><th>日時</th><th>名前</th><th>操作</th></tr></thead>
+      <tbody id="log-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // ▼▼▼ 書き換えエリア ▼▼▼
+    const GAS_URL = "【https://script.google.com/macros/s/AKfycbx2pGoMfXddW-lW55uLZLcQMHPiUmip0MLMW8pPV-whojd2_oiH-GQjV1gmMDRANr7N/exec
+】"; // 手順1のURL
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    fetch(GAS_URL).then(r => r.json()).then(data => {
+      data.reverse(); // 新しい順にする
+
+      // ステータス判定 (最新のデータを見る)
+      const statusDiv = document.getElementById('current-status');
+      if (data.length > 0) {
+        const latest = data[0];
+        if (latest.action.includes('借り')) {
+          statusDiv.innerHTML = `⚠️ 現在 貸出中<br><span style="font-size:14px; font-weight:normal;">(貸出者: ${latest.name})</span>`;
+          statusDiv.className = "status-card status-out";
+        } else {
+          statusDiv.innerText = "✅ 現在 警備員室";
+          statusDiv.className = "status-card status-in";
+        }
+      } else {
+        statusDiv.innerText = "履歴なし";
+      }
+      statusDiv.style.display = 'block';
+
+      // テーブル描画
+      const tbody = document.getElementById('log-body');
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td>${item.action}</td>`;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+</html>
