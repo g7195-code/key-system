@@ -3,42 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Processing...</title>
+  <title>送信先の選択</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     body { font-family: sans-serif; text-align: center; padding-top: 50px; color: #333; }
     #msg { font-size: 18px; font-weight: bold; }
-    .error { color: red; font-size: 14px; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <div id="msg">読み込み中...<br>そのままお待ちください</div>
-  <div id="error-log" class="error"></div>
+  <div id="msg">読み込み中...</div>
 
   <script>
-    // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    // 【重要】ここにGASの「ウェブアプリURL」を貼り付けてください
+    // ▼▼▼ あなたのGAS URL ▼▼▼
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzS-HvmIaMkzNl65ZbWsm56md-ImZSF0Iu96fsKgB1W-laLoBPbuqk3HyPGgqYB3gej/exec";
     
-    // あなたのLIFF ID (設定済み)
+    // LIFF ID (そのままでOK)
     const LIFF_ID = "2008690527-hcW4PPyp";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     async function main() {
       const msgDiv = document.getElementById('msg');
-      const errDiv = document.getElementById('error-log');
 
       try {
-        // 1. LIFFの初期化
         await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
 
-        // ログインしていない場合はログイン画面へ
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-
-        // 2. モード確認 (URLの ?mode=borrow 等を取得)
         const params = new URLSearchParams(window.location.search);
         const mode = params.get('mode');
 
@@ -47,20 +36,12 @@
           return;
         }
 
-        msgDiv.innerText = "送信中...";
         const profile = await liff.getProfile();
         const actionText = (mode === 'borrow') ? '借りました' : '返しました';
         const logAction  = (mode === 'borrow') ? '借りる' : '返す';
 
-        // 3. LINEトークルームに発言 (無料)
-        // ※ここで失敗する場合、LINE Developersで「chat_message.write」権限がない可能性大
-        await liff.sendMessages([{
-          type: 'text',
-          text: `${profile.displayName}が鍵を${actionText}`
-        }]);
-
-        // 4. GAS(スプレッドシート)にログ送信
-        // 'no-cors' はGASへの送信で必須の設定です
+        // 1. GASにログを送信 (裏側で実行)
+        msgDiv.innerText = "ログ保存中...";
         fetch(GAS_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -72,18 +53,30 @@
           })
         });
 
-        // 5. 完了＆閉じる
-        msgDiv.innerText = "完了！";
-        setTimeout(() => {
+        // 2. LINEで送信先を選ばせる (ここが変わった点！)
+        msgDiv.innerText = "送信先（グループ）を選んでください";
+        
+        if (liff.isApiAvailable('shareTargetPicker')) {
+          await liff.shareTargetPicker([
+            {
+              type: "text",
+              text: `[鍵管理] ${profile.displayName}が鍵を${actionText}`
+            }
+          ]);
+          // 送信したら閉じる
           liff.closeWindow();
-        }, 500);
+        } else {
+          msgDiv.innerText = "エラー: Share Target Pickerが使えません。\nLINE Developersで有効にしましたか？";
+        }
 
       } catch (err) {
-        msgDiv.innerText = "エラーが発生しました";
-        errDiv.innerText = err; // エラー内容を表示
+        msgDiv.innerText = "エラー: " + err;
+        // ユーザーが送信キャンセルした時などはここにくる
+        if (err.code === "USER_CANCEL") {
+          liff.closeWindow();
+        }
       }
     }
-
     main();
   </script>
 </body>
