@@ -14,12 +14,12 @@
   <div id="msg">読み込み中...</div>
 
   <script>
-    // ▼▼▼ あなたのGAS URL ▼▼▼
+    // ▼▼▼ あなたのGAS URL (書き換えてください) ▼▼▼
     const GAS_URL = "https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec";
     
-    // LIFF ID (そのままでOK)
+    // ▼▼▼ LIFF ID (Share Target Picker対応版) ▼▼▼
     const LIFF_ID = "2008690527-hcW4PPyp";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     async function main() {
       const msgDiv = document.getElementById('msg');
@@ -53,28 +53,41 @@
           })
         });
 
-        // 2. LINEで送信先を選ばせる (ここが変わった点！)
+        // 2. 日時を作成 (例: 12/15 14:00)
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const date  = now.getDate();
+        const hours = now.getHours();
+        const mins  = now.getMinutes().toString().padStart(2, '0'); // 分は2桁にする
+        const timeStr = `${month}/${date} ${hours}:${mins}`;
+
+        // 3. LINEで送信先を選ばせる
         msgDiv.innerText = "送信先（グループ）を選んでください";
         
         if (liff.isApiAvailable('shareTargetPicker')) {
-          await liff.shareTargetPicker([
+          // メッセージを作成
+          const message = `${timeStr}に${profile.displayName}が鍵を${actionText}`;
+          
+          const res = await liff.shareTargetPicker([
             {
               type: "text",
-              text: `[鍵管理] ${profile.displayName}が鍵を${actionText}`
+              text: message
             }
           ]);
-          // 送信したら閉じる
-          liff.closeWindow();
+
+          if (res) {
+            msgDiv.innerText = "送信完了！";
+            setTimeout(() => { liff.closeWindow(); }, 1000);
+          } else {
+            msgDiv.innerText = "送信がキャンセルされました";
+            setTimeout(() => { liff.closeWindow(); }, 1000);
+          }
         } else {
-          msgDiv.innerText = "エラー: Share Target Pickerが使えません。\nLINE Developersで有効にしましたか？";
+          msgDiv.innerText = "エラー: Share Target Pickerが使えません。\n設定をONにしましたか？";
         }
 
       } catch (err) {
         msgDiv.innerText = "エラー: " + err;
-        // ユーザーが送信キャンセルした時などはここにくる
-        if (err.code === "USER_CANCEL") {
-          liff.closeWindow();
-        }
       }
     }
     main();
