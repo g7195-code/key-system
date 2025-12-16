@@ -8,6 +8,18 @@
     body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #333; }
     h2 { text-align: center; margin-bottom: 20px; }
     
+    /* ログイン画面のデザイン */
+    #login-screen {
+      text-align: center;
+      padding-top: 50px;
+    }
+    input[type="password"] {
+      padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 60%;
+    }
+    button {
+      padding: 10px 20px; font-size: 16px; background-color: #06c755; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;
+    }
+    
     /* ステータスカード */
     .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: bold; font-size: 24px; transition: all 0.3s ease; }
     .status-out { background-color: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
@@ -31,38 +43,67 @@
 
   <h2>🔑 鍵管理システム</h2>
 
-  <div id="current-status" class="status-card" style="display:none;">
-    確認中...
+  <div id="login-screen">
+    <p>パスワードを入力してください</p>
+    <input type="password" id="pass-input" placeholder="パスワード">
+    <button onclick="checkPassword()">解除</button>
+    <p id="error-msg" style="color:red; font-size:14px; margin-top:10px;"></p>
   </div>
 
-  <div class="history-section">
-    <h3>最近の履歴</h3>
-    <div id="loading">データを読み込んでいます...</div>
-    <table id="log-table" style="display:none;">
-      <thead>
-        <tr>
-          <th>日時</th>
-          <th>名前</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="log-body">
-        </tbody>
-    </table>
+  <div id="main-content" style="display:none;">
+    
+    <div id="current-status" class="status-card" style="display:none;">
+      確認中...
+    </div>
+
+    <div class="history-section">
+      <h3>最近の履歴</h3>
+      <div id="loading">データを読み込んでいます...</div>
+      <table id="log-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>日時</th>
+            <th>名前</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="log-body">
+          </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    // 【重要】ここにGASの「ウェブアプリURL」を貼り付けてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzS-HvmIaMkzNl65ZbWsm56md-ImZSF0Iu96fsKgB1W-laLoBPbuqk3HyPGgqYB3gej/exec"; 
+    // 【設定1】ここにあなたのGAS URLを貼る
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec"; 
+    
+    // 【設定2】ここに好きなパスワードを決める (例: "1234", "miyagi", "kagi")
+    const MY_PASSWORD = "miyakyo";
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+    // パスワードを確認する機能
+    function checkPassword() {
+      const input = document.getElementById('pass-input').value;
+      const errorMsg = document.getElementById('error-msg');
+      
+      if (input === MY_PASSWORD) {
+        // 正解ならログイン画面を消して、メイン画面を出す
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        // データを読み込み開始
+        fetchLog();
+      } else {
+        errorMsg.innerText = "パスワードが違います";
+      }
+    }
+
+    // データを取ってくる機能
     async function fetchLog() {
       try {
         const response = await fetch(GAS_URL);
         const data = await response.json();
         
-        // 新しい順に並び替え
         data.reverse();
 
         // 1. ステータス表示
@@ -104,8 +145,6 @@
         document.getElementById('loading').innerText = "読み込み失敗: " + e;
       }
     }
-
-    fetchLog();
   </script>
 </body>
 </html>
