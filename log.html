@@ -95,7 +95,7 @@
   <div id="public-screen">
     
     <div id="login-section">
-      <p style="margin:5px 0;">管理者メニュー（履歴閲覧）</p>
+      <p style="margin:5px 0;">パスワードを入力してください</p>
       <div style="display:flex; justify-content:center; gap:10px;">
         <input type="password" id="pass-input" placeholder="パスワード">
         <button class="login-btn" onclick="checkPassword()">解除</button>
@@ -112,7 +112,6 @@
         <li>2025/12/26：履歴が多いときにページをめくれるようにしました</li>
         <li>2025/12/16：パスワード機能を追加しました</li>
         <li>2024/12/16：鍵管理システムの運用を開始しました</li>
-
       </ul>
     </div>
 
@@ -178,4 +177,153 @@
         // パスワード正解！
         // 公開画面を消して、管理者画面を出す
         document.getElementById('public-screen').style.display = 'none';
-        document.getElementById('admin-screen').style.display
+        document.getElementById('admin-screen').style.display = 'block';
+        
+        if(isDataLoaded) {
+          updateStatusCard(allLogData);
+          renderPage();
+        } else {
+          document.getElementById('current-status').innerText = "データ読込中...";
+        }
+
+      } else {
+        errorMsg.innerText = "パスワードが違います";
+      }
+    }
+
+    // ログアウト（元の画面に戻るだけ）
+    function logout() {
+      location.reload(); 
+    }
+
+    async function fetchLog() {
+      try {
+        const response = await fetch(GAS_URL);
+        const json = await response.json();
+        
+        document.getElementById('loading-bar').style.display = 'none';
+        renderChat(json.chat);
+
+        allLogData = json.logs.reverse();
+        isDataLoaded = true;
+        
+        // 管理者画面が開いていたらデータ更新
+        if (document.getElementById('admin-screen').style.display === 'block') {
+          updateStatusCard(allLogData);
+          renderPage();
+        }
+
+      } catch (e) {
+        document.getElementById('loading-bar').innerText = "読み込み失敗: " + e;
+      }
+    }
+
+    function renderChat(chatData) {
+      const chatListDiv = document.getElementById('chat-list');
+      chatListDiv.innerHTML = "";
+
+      if (!chatData || chatData.length === 0) {
+        chatListDiv.innerHTML = '<div style="text-align:center; color:#999;">まだ投稿はありません</div>';
+        return;
+      }
+
+      chatData.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'chat-item';
+        div.innerHTML = `
+          <div class="chat-meta">
+            <span class="chat-name">${item.name}</span>
+            <span>${item.date}</span>
+          </div>
+          <div>${item.text}</div>
+        `;
+        chatListDiv.appendChild(div);
+      });
+    }
+
+    async function sendChat() {
+      const nameInput = document.getElementById('chat-name');
+      const msgInput = document.getElementById('chat-msg');
+      const name = nameInput.value;
+      const text = msgInput.value;
+
+      if (!name || !text) {
+        alert("名前とメッセージを入力してください");
+        return;
+      }
+
+      const btn = document.querySelector('.chat-btn');
+      btn.disabled = true;
+      btn.innerText = "送信中...";
+
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'chat',
+            name: name,
+            text: text
+          })
+        });
+
+        msgInput.value = "";
+        fetchLog();
+
+      } catch (e) {
+        alert("送信エラー: " + e);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "送信";
+      }
+    }
+
+    function updateStatusCard(data) {
+      const statusDiv = document.getElementById('current-status');
+      if (data.length > 0) {
+        const latest = data[0];
+        if (latest.action.includes('借り')) {
+          statusDiv.innerHTML = `⚠️ 現在 貸出中<br><span style="font-size:16px; font-weight:normal;">(貸出者: ${latest.name})</span>`;
+          statusDiv.className = "status-card status-out";
+        } else {
+          statusDiv.innerHTML = `✅ 現在 警備員室<br><span style="font-size:16px; font-weight:normal;">(最終返却: ${latest.name})</span>`;
+          statusDiv.className = "status-card status-in";
+        }
+      } else {
+        statusDiv.innerText = "履歴がありません";
+        statusDiv.className = "status-card";
+      }
+    }
+
+    function renderPage() {
+      const tbody = document.getElementById('log-body');
+      tbody.innerHTML = "";
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const pageData = allLogData.slice(startIndex, endIndex);
+
+      pageData.forEach(item => {
+        const row = document.createElement('tr');
+        const isBorrow = item.action.includes('借り');
+        const badgeClass = isBorrow ? 'badge-borrow' : 'badge-return';
+        row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badgeClass}">${item.action}</span></td>`;
+        tbody.appendChild(row);
+      });
+      updatePaginationControls();
+    }
+
+    function updatePaginationControls() {
+      const totalPages = Math.ceil(allLogData.length / ITEMS_PER_PAGE);
+      document.getElementById('prev-btn').disabled = (currentPage === 1);
+      document.getElementById('next-btn').disabled = (currentPage === totalPages || totalPages === 0);
+      document.getElementById('page-info').innerText = allLogData.length === 0 ? "データなし" : `${currentPage} / ${totalPages} ページ`;
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      renderPage();
+    }
+  </script>
+</body>
+</html>
