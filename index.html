@@ -3,68 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>鍵の利用状況</title>
+  <title>鍵管理＆掲示板</title>
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #333; }
+    /* 設定色 */
+    :root {
+      --bg-color: #f0f2f5; --text-main: #333; --text-sub: #666;
+      --card-bg: #fff; --border-color: #eee;
+      --input-bg: #fff; --input-border: #ccc;
+      --accent-color: #06c755;
+      --status-out-bg: #fff3cd; --status-out-text: #856404; --status-out-border: #ffeeba;
+      --status-in-bg: #d4edda; --status-in-text: #155724; --status-in-border: #c3e6cb;
+      --badge-borrow-bg: #ffeeba; --badge-borrow-text: #856404;
+      --badge-return-bg: #d4edda; --badge-return-text: #155724;
+      /* 掲示板の色 */
+      --chat-bg: #fff; --chat-bubble: #f1f0f0; --chat-mine: #dcf8c6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212; --text-main: #e4e6eb; --text-sub: #b0b3b8;
+        --card-bg: #242526; --border-color: #3e4042;
+        --input-bg: #3a3b3c; --input-border: #555;
+        --accent-color: #20c966;
+        --status-out-bg: #5c4d00; --status-out-text: #ffda6a; --status-out-border: #8a7300;
+        --status-in-bg: #10421d; --status-in-text: #85e8a7; --status-in-border: #1e5e2f;
+        --badge-borrow-bg: #8a7300; --badge-borrow-text: #ffda6a;
+        --badge-return-bg: #1e5e2f; --badge-return-text: #85e8a7;
+        /* 掲示板の色(ダーク) */
+        --chat-bg: #242526; --chat-bubble: #3a3b3c; --chat-mine: #005c4b;
+      }
+    }
+
+    body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
     h2 { text-align: center; margin-bottom: 20px; }
-    
-    /* ログイン画面のデザイン */
+
     #login-screen { text-align: center; padding-top: 30px; }
-    input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 60%; }
-    button.login-btn { padding: 10px 20px; font-size: 16px; background-color: #06c755; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-    
-    /* ▼▼▼ 更新情報のデザイン (新しく追加) ▼▼▼ */
-    .news-box {
-      margin-top: 40px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      text-align: left;
-      width: 80%;
-      margin-left: auto; 
-      margin-right: auto;
-    }
-    .news-box h3 {
-      font-size: 16px;
-      margin-top: 0;
-      color: #06c755; /* LINEっぽい緑 */
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
-    }
-    .news-box ul {
-      padding-left: 20px;
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 0;
-    }
-    .news-box li {
-      margin-bottom: 8px;
-    }
+    input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; width: 60%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); }
+    button.login-btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; background: var(--accent-color); color: white; font-weight: bold; }
 
     /* ステータスカード */
-    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: bold; font-size: 24px; transition: all 0.3s ease; }
-    .status-out { background-color: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
-    .status-in { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-    
-    /* 履歴テーブル */
-    .history-section { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    h3 { font-size: 16px; margin-top: 0; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid #eee; }
-    th { color: #888; font-weight: normal; font-size: 12px; }
-    
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-    .badge-borrow { background: #ffeeba; color: #856404; }
-    .badge-return { background: #d4edda; color: #155724; }
-    
-    #loading { text-align: center; color: #999; margin-top: 20px; }
+    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .status-out { background: var(--status-out-bg); color: var(--status-out-text); border: 2px solid var(--status-out-border); }
+    .status-in { background: var(--status-in-bg); color: var(--status-in-text); border: 2px solid var(--status-in-border); }
 
-    /* ページ送りボタン */
+    /* ▼▼▼ 掲示板エリアのデザイン ▼▼▼ */
+    .chat-section {
+      background: var(--chat-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-bottom: 30px;
+    }
+    .chat-form { display: flex; gap: 5px; margin-bottom: 15px; }
+    .chat-input-name { width: 25%; padding: 8px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); }
+    .chat-input-text { width: 50%; padding: 8px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); flex-grow: 1; }
+    .chat-btn { padding: 8px 15px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    
+    .chat-list { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .chat-item { padding: 10px; border-radius: 8px; background-color: var(--chat-bubble); font-size: 14px; position: relative; }
+    .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; display: flex; justify-content: space-between; }
+    .chat-name { font-weight: bold; color: var(--accent-color); }
+    /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
+    .history-section { padding: 15px; border-radius: 10px; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    h3 { font-size: 16px; margin-top: 0; padding-bottom: 10px; color: var(--text-sub); border-bottom: 1px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { color: var(--text-sub); font-weight: normal; font-size: 12px; }
+
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .badge-borrow { background: var(--badge-borrow-bg); color: var(--badge-borrow-text); }
+    .badge-return { background: var(--badge-return-bg); color: var(--badge-return-text); }
+
     .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
-    .page-btn { padding: 8px 15px; background-color: #eee; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+    .page-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; background: var(--border-color); color: var(--text-main); }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    #page-info { font-size: 14px; color: #666; }
+    #page-info { font-size: 14px; color: var(--text-sub); }
   </style>
 </head>
 <body>
@@ -76,37 +85,30 @@
     <input type="password" id="pass-input" placeholder="Password">
     <button class="login-btn" onclick="checkPassword()">解除</button>
     <p id="error-msg" style="color:red; font-size:14px; margin-top:10px;"></p>
-
-    <div class="news-box">
-      <h3>🔔 お知らせ・更新情報</h3>
-      <ul>
-        <li>2025/01/03：履歴が多いときにページをめくれるようにしました</li>
-        <li>2025/01/01：パスワード機能を追加しました</li>
-        <li>2024/12/25：鍵管理システムの運用を開始しました</li>
-      </ul>
-    </div>
-    </div>
+  </div>
 
   <div id="main-content" style="display:none;">
     
-    <div id="current-status" class="status-card" style="display:none;">
-      確認中...
-    </div>
+    <div id="current-status" class="status-card" style="display:none;">確認中...</div>
 
+    <div class="chat-section">
+      <h3>💬 みんなの掲示板</h3>
+      <div class="chat-form">
+        <input type="text" id="chat-name" class="chat-input-name" placeholder="名前">
+        <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
+        <button class="chat-btn" onclick="sendChat()">送信</button>
+      </div>
+      <div id="chat-list" class="chat-list">
+        <div style="text-align:center; color:#999;">読み込み中...</div>
+      </div>
+    </div>
     <div class="history-section">
       <h3>最近の履歴</h3>
       <div id="loading">データを読み込んでいます...</div>
       
       <table id="log-table" style="display:none;">
-        <thead>
-          <tr>
-            <th>日時</th>
-            <th>名前</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="log-body">
-          </tbody>
+        <thead><tr><th>日時</th><th>名前</th><th>操作</th></tr></thead>
+        <tbody id="log-body"></tbody>
       </table>
 
       <div id="pagination" class="pagination" style="display:none;">
@@ -118,13 +120,10 @@
   </div>
 
   <script>
-    // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    // 【設定1】GASのURL
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec"; 
-    
-    // 【設定2】パスワード
+    // ▼▼▼ 設定エリア ▼▼▼
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQRJxFq38wmoqsUAutkeq4XWIggjn2lMWZEGTSk4VdR6qIEJiyX9yXTLXn1wZNrThX/exec"; 
     const MY_PASSWORD = "miyakyo";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    // ▲▲▲▲▲▲▲▲▲▲▲▲
 
     const ITEMS_PER_PAGE = 50;
     let allLogData = [];
@@ -145,12 +144,15 @@
     async function fetchLog() {
       try {
         const response = await fetch(GAS_URL);
-        const data = await response.json();
+        const json = await response.json();
         
-        data.reverse();
-        updateStatusCard(data);
+        // 1. 掲示板の更新 (json.chat が入ってくる)
+        renderChat(json.chat);
 
-        allLogData = data;
+        // 2. 履歴の更新 (json.logs が入ってくる)
+        const logData = json.logs.reverse();
+        updateStatusCard(logData);
+        allLogData = logData;
         currentPage = 1;
         renderPage();
 
@@ -160,6 +162,71 @@
 
       } catch (e) {
         document.getElementById('loading').innerText = "読み込み失敗: " + e;
+      }
+    }
+
+    // チャットを描画する機能
+    function renderChat(chatData) {
+      const chatListDiv = document.getElementById('chat-list');
+      chatListDiv.innerHTML = ""; // クリア
+
+      if (!chatData || chatData.length === 0) {
+        chatListDiv.innerHTML = '<div style="text-align:center; color:#999;">まだ投稿はありません</div>';
+        return;
+      }
+
+      chatData.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'chat-item';
+        div.innerHTML = `
+          <div class="chat-meta">
+            <span class="chat-name">${item.name}</span>
+            <span>${item.date}</span>
+          </div>
+          <div>${item.text}</div>
+        `;
+        chatListDiv.appendChild(div);
+      });
+    }
+
+    // チャットを送信する機能
+    async function sendChat() {
+      const nameInput = document.getElementById('chat-name');
+      const msgInput = document.getElementById('chat-msg');
+      const name = nameInput.value;
+      const text = msgInput.value;
+
+      if (!name || !text) {
+        alert("名前とメッセージを入力してください");
+        return;
+      }
+
+      // ボタンを一時的に押せないようにする（連打防止）
+      const btn = document.querySelector('.chat-btn');
+      btn.disabled = true;
+      btn.innerText = "送信中...";
+
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'chat', // チャットだよ、と教える
+            name: name,
+            text: text
+          })
+        });
+
+        // 成功したら入力欄を空にして、画面を再読み込み
+        msgInput.value = "";
+        fetchLog(); // 画面更新
+
+      } catch (e) {
+        alert("送信エラー: " + e);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "送信";
       }
     }
 
@@ -192,7 +259,6 @@
         const row = document.createElement('tr');
         const isBorrow = item.action.includes('借り');
         const badgeClass = isBorrow ? 'badge-borrow' : 'badge-return';
-        
         row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badgeClass}">${item.action}</span></td>`;
         tbody.appendChild(row);
       });
