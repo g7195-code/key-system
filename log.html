@@ -10,27 +10,21 @@
       --bg-color: #f0f2f5; --text-main: #333; --text-sub: #666;
       --card-bg: #fff; --border-color: #eee;
       --input-bg: #fff; --input-border: #ccc;
-      --accent-color: #06c755; /* LINE Green */
-      --danger-color: #ff4b4b; /* 赤色 */
+      --accent-color: #06c755;
+      --danger-color: #ff4b4b;
       
-      /* ステータス色 */
       --status-out-bg: #fff3cd; --status-out-text: #856404; --status-out-border: #ffeeba;
       --status-in-bg: #d4edda; --status-in-text: #155724; --status-in-border: #c3e6cb;
       --badge-borrow-bg: #ffeeba; --badge-borrow-text: #856404;
       --badge-return-bg: #d4edda; --badge-return-text: #155724;
       
-      /* 掲示板 */
       --chat-bg: #fff; --chat-bubble: #f1f0f0; --chat-mine: #dcf8c6;
-      --report-bubble: #ffebee; --report-border: #ffcdd2; /* 報告用 */
+      --report-bubble: #ffebee; --report-border: #ffcdd2;
       
-      /* 天気 */
       --weather-bg: linear-gradient(135deg, #6dd5ed, #2193b0); --weather-text: #fff;
-      
-      /* チェックリスト */
       --check-bg: #fff8e1; --check-border: #ffecb3; --check-text: #5d4037;
     }
 
-    /* ダークモード */
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-color: #121212; --text-main: #e4e6eb; --text-sub: #b0b3b8;
@@ -53,47 +47,12 @@
     }
 
     body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
-    h2 { text-align: center; margin-bottom: 20px; font-size: 20px; }
+    h2 { text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; }
 
-    /* 画面切り替えアニメーション */
     #screen-public, #screen-admin { animation: fadeIn 0.5s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* ▼▼▼ 1. 天気予報 ▼▼▼ */
-    #weather-box {
-      background: var(--weather-bg); color: var(--weather-text); padding: 15px; border-radius: 12px; margin-bottom: 20px;
-      display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .weather-left { display: flex; align-items: center; gap: 15px; }
-    .weather-icon { font-size: 36px; }
-    .weather-temp { font-size: 28px; font-weight: bold; }
-    .weather-loc { font-size: 13px; opacity: 0.9; }
-
-    /* ▼▼▼ 2. 退出チェックリスト ▼▼▼ */
-    .checklist-box {
-      background-color: var(--check-bg); border: 2px solid var(--check-border); color: var(--check-text);
-      padding: 15px; border-radius: 12px; margin-bottom: 20px;
-    }
-    .checklist-box h3 { font-size: 15px; margin-top: 0; border-bottom: 1px solid var(--check-border); padding-bottom: 5px; display: flex; align-items: center; gap: 5px; }
-    .check-item { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .check-item input { margin-right: 10px; transform: scale(1.3); cursor: pointer; }
-    .check-complete { text-decoration: line-through; opacity: 0.6; }
-
-    /* ▼▼▼ 3. 備品報告ボタン ▼▼▼ */
-    .report-btn-area { text-align: right; margin-bottom: 20px; }
-    .report-open-btn {
-      background-color: var(--card-bg); color: var(--danger-color); border: 2px solid var(--danger-color);
-      padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 5px;
-    }
-    .report-open-btn:hover { background-color: var(--danger-color); color: white; }
-    /* 報告フォーム（初期は隠す） */
-    #report-form-box {
-      display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px solid var(--danger-color); margin-bottom: 20px;
-    }
-    .report-input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 5px; }
-
-    /* ▼▼▼ 4. ログインエリア ▼▼▼ */
+    /* ログインエリア */
     .login-box {
       background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       text-align: center; margin-bottom: 20px;
@@ -107,23 +66,54 @@
     .news-box ul { padding-left: 20px; font-size: 13px; color: var(--text-sub); margin-bottom: 0; }
     .news-box li { margin-bottom: 5px; }
 
-    /* ▼▼▼ 5. 掲示板 ▼▼▼ */
-    .chat-section { background: var(--chat-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 50px; }
+    /* 掲示板 */
+    .chat-section { background: var(--chat-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 40px; }
     .chat-form { display: flex; gap: 5px; margin-bottom: 15px; }
     .chat-input-name { width: 25%; padding: 10px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); }
     .chat-input-text { width: 50%; padding: 10px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); flex-grow: 1; }
     .chat-btn { padding: 0 20px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    
     .chat-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
     .chat-item { padding: 10px; border-radius: 8px; background-color: var(--chat-bubble); font-size: 14px; position: relative; }
-    /* 修理報告用の特別スタイル */
     .chat-item.report-item { background-color: var(--report-bubble); border: 1px solid var(--report-border); }
     .chat-item.report-item .chat-text { color: var(--danger-color); font-weight: bold; }
-
     .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 3px; display: flex; justify-content: space-between; }
     .chat-name { font-weight: bold; color: var(--accent-color); }
 
-    /* 管理者画面パーツ */
+    /* 天気予報 */
+    #weather-box {
+      background: var(--weather-bg); color: var(--weather-text); padding: 15px; border-radius: 12px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .weather-left { display: flex; align-items: center; gap: 15px; }
+    .weather-icon { font-size: 36px; }
+    .weather-temp { font-size: 28px; font-weight: bold; }
+    .weather-loc { font-size: 13px; opacity: 0.9; }
+
+    /* 退出チェックリスト */
+    .checklist-box {
+      background-color: var(--check-bg); border: 2px solid var(--check-border); color: var(--check-text);
+      padding: 15px; border-radius: 12px; margin-bottom: 20px;
+    }
+    .checklist-box h3 { font-size: 15px; margin-top: 0; border-bottom: 1px solid var(--check-border); padding-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+    .check-item { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .check-item input { margin-right: 10px; transform: scale(1.3); cursor: pointer; }
+    .check-complete { text-decoration: line-through; opacity: 0.6; }
+
+    /* 備品報告ボタン */
+    .report-btn-area { text-align: center; margin-bottom: 50px; }
+    .report-open-btn {
+      background-color: var(--card-bg); color: var(--danger-color); border: 2px solid var(--danger-color);
+      padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
+    }
+    .report-open-btn:active { transform: scale(0.95); }
+    
+    #report-form-box {
+      display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px solid var(--danger-color); margin-bottom: 20px;
+    }
+    .report-input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 5px; }
+
+    /* 管理者画面 */
     .logout-bar { text-align: right; margin-bottom: 10px; }
     .logout-btn { background: #999; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
     .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: var(--card-bg); }
@@ -145,7 +135,37 @@
 </head>
 <body>
 
+  <h2>🔑 鍵管理システム</h2>
+
   <div id="screen-public" style="display:block;">
+
+    <div class="login-box">
+      <p style="margin:5px 0; font-size:14px; color:var(--text-sub);">管理者メニュー（履歴閲覧）</p>
+      <div style="display:flex; justify-content:center; gap:10px;">
+        <input type="password" id="pass-input" placeholder="パスワード">
+        <button class="login-btn" onclick="checkPassword()">解除</button>
+      </div>
+      <p id="error-msg" style="color:red; font-size:13px; margin-top:5px;"></p>
+    </div>
+
+    <div class="news-box">
+      <h3>🔔 お知らせ・更新情報</h3>
+      <ul>
+        <li>2025/01/05：備品報告機能を追加しました🛠️</li>
+        <li>2025/01/05：天気予報とチェックリストを追加✅</li>
+      </ul>
+    </div>
+
+    <div class="chat-section">
+      <h3>💬 みんなの掲示板</h3>
+      <div class="chat-form">
+        <input type="text" id="chat-name" class="chat-input-name" placeholder="名前">
+        <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
+        <button class="chat-btn" onclick="sendChat()">送信</button>
+      </div>
+      <div id="loading-bar">読み込み中...</div>
+      <div id="chat-list" class="chat-list"></div>
+    </div>
 
     <div id="weather-box" style="display:none;">
       <div class="weather-left">
@@ -166,56 +186,21 @@
       <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> 忘れ物はない？</label>
     </div>
 
-    <div class="report-btn-area">
-      <div class="report-open-btn" onclick="toggleReportForm()">
-        🛠️ 備品・修理を報告する
-      </div>
-    </div>
     <div id="report-form-box">
       <p style="margin:0 0 10px 0; font-weight:bold; color:var(--danger-color);">破損・修理依頼</p>
       <input type="text" id="report-name" class="report-input" placeholder="あなたの名前">
       <input type="text" id="report-item" class="report-input" placeholder="壊れたもの（例: 的枠、共用矢）">
       <input type="text" id="report-detail" class="report-input" placeholder="詳細（例: 枠が割れています）">
       <div style="text-align:right;">
-        <button class="chat-btn" style="background:var(--danger-color);" onclick="sendReport()">報告する</button>
+        <button class="chat-btn" style="background:var(--danger-color);" onclick="sendReport()">報告送信</button>
+      </div>
+    </div>
+    <div class="report-btn-area">
+      <div class="report-open-btn" onclick="toggleReportForm()">
+        🛠️ 備品・修理を報告する
       </div>
     </div>
 
-    <div class="login-box">
-      <p style="margin:5px 0; font-size:14px; color:var(--text-sub);">パスワードを入力してください</p>
-      <div style="display:flex; justify-content:center; gap:10px;">
-        <input type="password" id="pass-input" placeholder="パスワード">
-        <button class="login-btn" onclick="checkPassword()">解除</button>
-      </div>
-      <p id="error-msg" style="color:red; font-size:13px; margin-top:5px;"></p>
-    </div>
-
-    <div class="news-box">
-      <h3>🔔 お知らせ・更新情報</h3>
-      <ul>
-        <li>2025/01/03：備品報告機能を追加しました</li>
-        <li>2025/01/03：天気予報を追加しました</li>
-        <li>2025/01/03：チェックリストを追加しました</li>
-        <li>2025/01/03：掲示板機能を追加しました</li>
-        <li>2025/01/03：ダークモードに対応しました</li>
-        <li>2026/01/03：お知らせ・更新情報の欄を作りました！</li>
-        <li>2025/12/26：履歴が多いときにページをめくれるようにしました</li>
-        <li>2025/12/16：パスワード機能を追加しました</li>
-        <li>2024/12/16：鍵管理システムの運用を開始しました</li>
-
-      </ul>
-    </div>
-
-    <div class="chat-section">
-      <h3>💬 みんなの掲示板</h3>
-      <div class="chat-form">
-        <input type="text" id="chat-name" class="chat-input-name" placeholder="名前">
-        <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
-        <button class="chat-btn" onclick="sendChat()">送信</button>
-      </div>
-      <div id="loading-bar">読み込み中...</div>
-      <div id="chat-list" class="chat-list"></div>
-    </div>
   </div>
 
 
@@ -240,7 +225,7 @@
 
   <script>
     // ▼▼▼ 設定エリア ▼▼▼
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxUeuNcEp9IkMTudQ_AjgXgyhqn6aZoZlNQRpnme0OZFMg5KEzpNtljNtauvuUmFtKY/exec"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxLlKCFdJ_6ctUFcNRUMe_mmf4M0u0e0Z38Xf5vVT3nLRyb1I268XFmo8gLCUTqWTc5/exec"; 
     const MY_PASSWORD = "miyakyo";
     // ▲▲▲▲▲▲▲▲▲▲▲▲
 
@@ -250,74 +235,52 @@
     let isDataLoaded = false;
 
     window.onload = function() {
-      // 1. 天気取得 (仙台)
       getWeather();
-
-      // 2. 名前復元 (掲示板用)
       const savedName = localStorage.getItem('chatName');
       if (savedName) {
         document.getElementById('chat-name').value = savedName;
-        document.getElementById('report-name').value = savedName; // 報告用にもコピー
+        document.getElementById('report-name').value = savedName;
       }
-
-      // 3. データ取得 & 自動更新
       fetchLog();
       setInterval(() => fetchLog(true), 30000); 
-      
-      // 4. エンターキー対応
       document.getElementById("pass-input").addEventListener("keypress", function(event) {
         if (event.key === "Enter") { event.preventDefault(); checkPassword(); }
       });
     };
 
-    // --- 天気予報 ---
     async function getWeather() {
       try {
         const url = "https://api.open-meteo.com/v1/forecast?latitude=38.2682&longitude=140.8694&current_weather=true&timezone=Asia%2FTokyo";
         const res = await fetch(url);
         const data = await res.json();
-        const temp = data.current_weather.temperature;
         const code = data.current_weather.weathercode;
         let icon = "☁️";
-        if (code === 0) icon = "☀️";
-        else if (code <= 3) icon = "⛅";
-        else if (code <= 48) icon = "🌫️";
-        else if (code <= 67) icon = "☔";
-        else if (code <= 77) icon = "☃️";
-        else icon = "☔";
-        document.getElementById('w-temp').innerText = temp + "°C";
+        if (code === 0) icon = "☀️"; else if (code <= 3) icon = "⛅"; else if (code <= 67) icon = "☔"; else if (code <= 77) icon = "☃️";
+        document.getElementById('w-temp').innerText = data.current_weather.temperature + "°C";
         document.getElementById('w-icon').innerText = icon;
         document.getElementById('weather-box').style.display = "flex";
-      } catch(e) { console.log(e); }
+      } catch(e) {}
     }
 
-    // --- 報告フォームの開閉 ---
     function toggleReportForm() {
       const box = document.getElementById('report-form-box');
       box.style.display = (box.style.display === 'block') ? 'none' : 'block';
     }
 
-    // --- 備品報告の送信 ---
     function sendReport() {
       const name = document.getElementById('report-name').value;
       const item = document.getElementById('report-item').value;
       const detail = document.getElementById('report-detail').value;
-      
       if(!name || !item) { alert("名前と壊れたものを入力してください"); return; }
       
-      // チャットとして送信するが、目印をつける
       const reportMsg = `🚨【破損・修理依頼】\n品名：${item}\n詳細：${detail}`;
-      
-      // チャット送信関数を再利用
       sendChatInternal(name, reportMsg);
-      
-      // フォームを閉じてクリア
       document.getElementById('report-item').value = "";
       document.getElementById('report-detail').value = "";
       document.getElementById('report-form-box').style.display = 'none';
+      alert("報告を送信しました。\n記録され、管理者へメールが送信されます。");
     }
 
-    // --- 通常チャット送信 ---
     function sendChat() {
       const name = document.getElementById('chat-name').value;
       const text = document.getElementById('chat-msg').value;
@@ -326,99 +289,58 @@
     }
 
     async function sendChatInternal(name, text) {
-      localStorage.setItem('chatName', name); // 名前を記憶
-      
-      // 送信中の表示（簡易）
+      localStorage.setItem('chatName', name);
       document.getElementById('loading-bar').style.display = 'block';
       document.getElementById('loading-bar').innerText = "送信中...";
-
       try {
         await fetch(GAS_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'chat', name: name, text: text })
         });
-        
-        // 入力欄クリア
         document.getElementById('chat-msg').value = "";
-        
-        // 即座に更新
         setTimeout(() => fetchLog(), 1000); 
-
-      } catch (e) {
-        alert("送信エラー: " + e);
-      }
+      } catch (e) { alert("送信エラー: " + e); }
     }
 
-    // --- データ取得 ---
     async function fetchLog(isAuto = false) {
       try {
         const response = await fetch(GAS_URL);
         const json = await response.json();
-        
         if (!isAuto) document.getElementById('loading-bar').style.display = 'none';
         renderChat(json.chat);
-
         allLogData = json.logs.reverse();
         isDataLoaded = true;
-        
         if (document.getElementById('screen-admin').style.display === 'block') {
           updateStatusCard(allLogData);
           renderPage();
         }
-      } catch (e) {
-        if (!isAuto) document.getElementById('loading-bar').innerText = "読み込み失敗: " + e;
-      }
+      } catch (e) { if (!isAuto) document.getElementById('loading-bar').innerText = "読込失敗"; }
     }
 
-    // --- チャット表示 ---
     function renderChat(chatData) {
       const chatListDiv = document.getElementById('chat-list');
       chatListDiv.innerHTML = "";
       if (!chatData || chatData.length === 0) {
-        chatListDiv.innerHTML = '<div style="text-align:center; color:#999;">まだ投稿はありません</div>';
-        return;
+        chatListDiv.innerHTML = '<div style="text-align:center; color:#999;">まだ投稿はありません</div>'; return;
       }
       chatData.forEach(item => {
         const div = document.createElement('div');
         div.className = 'chat-item';
-        
-        // 報告メッセージなら見た目を変える
-        if (item.text.includes("【破損・修理依頼】")) {
-          div.classList.add("report-item");
-        }
-        
-        // 改行を反映させる
-        const formattedText = item.text.replace(/\n/g, '<br>');
-
-        div.innerHTML = `
-          <div class="chat-meta"><span class="chat-name">${item.name}</span><span>${item.date}</span></div>
-          <div class="chat-text">${formattedText}</div>
-        `;
+        if (item.text.includes("【破損・修理依頼】")) div.classList.add("report-item");
+        div.innerHTML = `<div class="chat-meta"><span class="chat-name">${item.name}</span><span>${item.date}</span></div><div class="chat-text">${item.text.replace(/\n/g, '<br>')}</div>`;
         chatListDiv.appendChild(div);
       });
     }
 
-    // --- その他基本機能 ---
-    function toggleCheck(checkbox) {
-      const label = checkbox.parentElement;
-      if (checkbox.checked) label.classList.add("check-complete");
-      else label.classList.remove("check-complete");
-    }
-
+    function toggleCheck(c) { if(c.checked) c.parentElement.classList.add("check-complete"); else c.parentElement.classList.remove("check-complete"); }
+    
     function checkPassword() {
-      const input = document.getElementById('pass-input').value;
-      if (input === MY_PASSWORD) {
+      if (document.getElementById('pass-input').value === MY_PASSWORD) {
         document.getElementById('screen-public').style.display = 'none';
         document.getElementById('screen-admin').style.display = 'block';
         if(isDataLoaded) { updateStatusCard(allLogData); renderPage(); }
-        else { document.getElementById('current-status').innerText = "データ読込中..."; }
-      } else {
-        document.getElementById('error-msg').innerText = "パスワードが違います";
-      }
+      } else document.getElementById('error-msg').innerText = "パスワードが違います";
     }
-
     function logout() { location.reload(); }
 
     function updateStatusCard(data) {
@@ -432,36 +354,22 @@
           statusDiv.innerHTML = `✅ 現在 警備員室<br><span style="font-size:16px; font-weight:normal;">(最終返却: ${latest.name})</span>`;
           statusDiv.className = "status-card status-in";
         }
-      } else {
-        statusDiv.innerText = "履歴がありません";
-        statusDiv.className = "status-card";
-      }
+      } else { statusDiv.innerText = "履歴がありません"; statusDiv.className = "status-card"; }
     }
-
     function renderPage() {
-      const tbody = document.getElementById('log-body');
-      tbody.innerHTML = "";
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const pageData = allLogData.slice(startIndex, endIndex);
-      pageData.forEach(item => {
+      const tbody = document.getElementById('log-body'); tbody.innerHTML = "";
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      allLogData.slice(start, start + ITEMS_PER_PAGE).forEach(item => {
         const row = document.createElement('tr');
-        const isBorrow = item.action.includes('借り');
-        const badgeClass = isBorrow ? 'badge-borrow' : 'badge-return';
-        row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badgeClass}">${item.action}</span></td>`;
+        const badge = item.action.includes('借り') ? 'badge-borrow' : 'badge-return';
+        row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badge}">${item.action}</span></td>`;
         tbody.appendChild(row);
       });
-      updatePaginationControls();
-    }
-
-    function updatePaginationControls() {
-      const totalPages = Math.ceil(allLogData.length / ITEMS_PER_PAGE);
       document.getElementById('prev-btn').disabled = (currentPage === 1);
-      document.getElementById('next-btn').disabled = (currentPage === totalPages || totalPages === 0);
-      document.getElementById('page-info').innerText = allLogData.length === 0 ? "データなし" : `${currentPage} / ${totalPages} ページ`;
+      document.getElementById('next-btn').disabled = (currentPage === Math.ceil(allLogData.length / ITEMS_PER_PAGE) || allLogData.length === 0);
+      document.getElementById('page-info').innerText = allLogData.length === 0 ? "データなし" : `${currentPage} / ${Math.ceil(allLogData.length / ITEMS_PER_PAGE)} ページ`;
     }
-
-    function changePage(direction) { currentPage += direction; renderPage(); }
+    function changePage(d) { currentPage += d; renderPage(); }
   </script>
 </body>
 </html>
