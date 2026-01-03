@@ -3,215 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>鍵の利用状況</title>
+  <title>送信中...</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #333; }
-    h2 { text-align: center; margin-bottom: 20px; }
-    
-    /* ログイン画面のデザイン */
-    #login-screen { text-align: center; padding-top: 30px; }
-    input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 60%; }
-    button.login-btn { padding: 10px 20px; font-size: 16px; background-color: #06c755; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-    
-    /* ▼▼▼ 更新情報のデザイン (新しく追加) ▼▼▼ */
-    .news-box {
-      margin-top: 40px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      text-align: left;
-      width: 80%;
-      margin-left: auto; 
-      margin-right: auto;
+    /* ▼▼▼ ダークモード対応のデザイン設定 ▼▼▼ */
+    :root {
+      --bg-color: #f0f2f5;
+      --text-color: #333;
+      --status-color: #666;
+      --loader-color: #06c755;
     }
-    .news-box h3 {
-      font-size: 16px;
-      margin-top: 0;
-      color: #06c755; /* LINEっぽい緑 */
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
-    }
-    .news-box ul {
-      padding-left: 20px;
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 0;
-    }
-    .news-box li {
-      margin-bottom: 8px;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --text-color: #e4e6eb;
+        --status-color: #b0b3b8;
+        --loader-color: #20c966;
+      }
     }
 
-    /* ステータスカード */
-    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: bold; font-size: 24px; transition: all 0.3s ease; }
-    .status-out { background-color: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
-    .status-in { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      padding-top: 80px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
     
-    /* 履歴テーブル */
-    .history-section { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    h3 { font-size: 16px; margin-top: 0; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid #eee; }
-    th { color: #888; font-weight: normal; font-size: 12px; }
-    
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-    .badge-borrow { background: #ffeeba; color: #856404; }
-    .badge-return { background: #d4edda; color: #155724; }
-    
-    #loading { text-align: center; color: #999; margin-top: 20px; }
+    /* 読み込み中のアニメーション（くるくる） */
+    .loader {
+      border: 5px solid var(--status-color);
+      border-top: 5px solid var(--loader-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* ページ送りボタン */
-    .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
-    .page-btn { padding: 8px 15px; background-color: #eee; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    #page-info { font-size: 14px; color: #666; }
+    #msg {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    #sub-msg {
+      font-size: 14px;
+      color: var(--status-color);
+    }
   </style>
 </head>
 <body>
-
-  <h2>🔑 鍵管理システム</h2>
-
-  <div id="login-screen">
-    <p>閲覧用パスワードを入力</p>
-    <input type="password" id="pass-input" placeholder="Password">
-    <button class="login-btn" onclick="checkPassword()">解除</button>
-    <p id="error-msg" style="color:red; font-size:14px; margin-top:10px;"></p>
-
-    <div class="news-box">
-      <h3>🔔 お知らせ・更新情報</h3>
-      <ul>
-        <li>2025/01/03：履歴が多いときにページをめくれるようにしました</li>
-        <li>2025/01/01：パスワード機能を追加しました</li>
-        <li>2024/12/25：鍵管理システムの運用を開始しました</li>
-      </ul>
-    </div>
-    </div>
-
-  <div id="main-content" style="display:none;">
-    
-    <div id="current-status" class="status-card" style="display:none;">
-      確認中...
-    </div>
-
-    <div class="history-section">
-      <h3>最近の履歴</h3>
-      <div id="loading">データを読み込んでいます...</div>
-      
-      <table id="log-table" style="display:none;">
-        <thead>
-          <tr>
-            <th>日時</th>
-            <th>名前</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="log-body">
-          </tbody>
-      </table>
-
-      <div id="pagination" class="pagination" style="display:none;">
-        <button id="prev-btn" class="page-btn" onclick="changePage(-1)">＜ 前へ</button>
-        <span id="page-info"></span>
-        <button id="next-btn" class="page-btn" onclick="changePage(1)">次へ ＞</button>
-      </div>
-    </div>
-  </div>
+  
+  <div class="loader" id="loader"></div>
+  <div id="msg">読み込み中...</div>
+  <div id="sub-msg">そのままお待ちください</div>
 
   <script>
-    // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    // 【設定1】GASのURL
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQRJxFq38wmoqsUAutkeq4XWIggjn2lMWZEGTSk4VdR6qIEJiyX9yXTLXn1wZNrThX/exec
-"; 
+    // ▼▼▼ 設定エリア ▼▼▼
+    // 1. あなたのGAS URL (教えていただいたもの)
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQRJxFq38wmoqsUAutkeq4XWIggjn2lMWZEGTSk4VdR6qIEJiyX9yXTLXn1wZNrThX/exec";
     
-    // 【設定2】パスワード
-    const MY_PASSWORD = "miyakyo";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    // 2. LIFF ID (もし変わっていたら修正してください)
+    const LIFF_ID = "2008690527-hcW4PPyp";
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-    const ITEMS_PER_PAGE = 50;
-    let allLogData = [];
-    let currentPage = 1;
+    async function main() {
+      const msgDiv = document.getElementById('msg');
+      const subMsg = document.getElementById('sub-msg');
 
-    function checkPassword() {
-      const input = document.getElementById('pass-input').value;
-      const errorMsg = document.getElementById('error-msg');
-      if (input === MY_PASSWORD) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        fetchLog();
-      } else {
-        errorMsg.innerText = "パスワードが違います";
-      }
-    }
-
-    async function fetchLog() {
       try {
-        const response = await fetch(GAS_URL);
-        const data = await response.json();
-        
-        data.reverse();
-        updateStatusCard(data);
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
 
-        allLogData = data;
-        currentPage = 1;
-        renderPage();
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode');
 
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('log-table').style.display = 'table';
-        document.getElementById('pagination').style.display = 'flex';
-
-      } catch (e) {
-        document.getElementById('loading').innerText = "読み込み失敗: " + e;
-      }
-    }
-
-    function updateStatusCard(data) {
-      const statusDiv = document.getElementById('current-status');
-      if (data.length > 0) {
-        const latest = data[0];
-        if (latest.action.includes('借り')) {
-          statusDiv.innerHTML = `⚠️ 現在 貸出中<br><span style="font-size:16px; font-weight:normal;">(貸出者: ${latest.name})</span>`;
-          statusDiv.className = "status-card status-out";
-        } else {
-          statusDiv.innerHTML = `✅ 現在 警備員室<br><span style="font-size:16px; font-weight:normal;">(最終返却: ${latest.name})</span>`;
-          statusDiv.className = "status-card status-in";
+        if (!mode) {
+          document.getElementById('loader').style.display = 'none';
+          msgDiv.innerText = "⚠️ エラー";
+          subMsg.innerText = "NFCタグまたはQRコードから起動してください";
+          return;
         }
-      } else {
-        statusDiv.innerText = "履歴がありません";
-        statusDiv.className = "status-card";
-      }
-      statusDiv.style.display = 'block';
-    }
 
-    function renderPage() {
-      const tbody = document.getElementById('log-body');
-      tbody.innerHTML = "";
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const pageData = allLogData.slice(startIndex, endIndex);
+        const profile = await liff.getProfile();
+        const actionText = (mode === 'borrow') ? '借りました' : '返しました';
+        const logAction  = (mode === 'borrow') ? '借りる' : '返す';
 
-      pageData.forEach(item => {
-        const row = document.createElement('tr');
-        const isBorrow = item.action.includes('借り');
-        const badgeClass = isBorrow ? 'badge-borrow' : 'badge-return';
+        // 1. GASにログを送信
+        msgDiv.innerText = "データを保存中...";
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'log', // ★重要：これは「鍵ログ」だよと伝える合図
+            userName: profile.displayName,
+            userId: profile.userId,
+            action: logAction
+          })
+        });
+
+        // 2. 日時を作成 (例: 1/3 14:00)
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const date  = now.getDate();
+        const hours = now.getHours();
+        const mins  = now.getMinutes().toString().padStart(2, '0');
+        const timeStr = `${month}/${date} ${hours}:${mins}`;
+
+        // 3. LINEで送信先を選ばせる
+        msgDiv.innerText = "送信先を選択してください";
+        subMsg.innerText = "グループを選ぶと完了します";
         
-        row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badgeClass}">${item.action}</span></td>`;
-        tbody.appendChild(row);
-      });
-      updatePaginationControls();
-    }
+        if (liff.isApiAvailable('shareTargetPicker')) {
+          const message = `${timeStr}に${profile.displayName}が鍵を${actionText}`;
+          
+          const res = await liff.shareTargetPicker([
+            {
+              type: "text",
+              text: message
+            }
+          ]);
 
-    function updatePaginationControls() {
-      const totalPages = Math.ceil(allLogData.length / ITEMS_PER_PAGE);
-      document.getElementById('prev-btn').disabled = (currentPage === 1);
-      document.getElementById('next-btn').disabled = (currentPage === totalPages || totalPages === 0);
-      document.getElementById('page-info').innerText = allLogData.length === 0 ? "データなし" : `${currentPage} / ${totalPages} ページ`;
-    }
+          if (res) {
+            msgDiv.innerText = "✅ 送信完了！";
+            subMsg.innerText = "画面を閉じます...";
+            setTimeout(() => { liff.closeWindow(); }, 1000);
+          } else {
+            msgDiv.innerText = "キャンセルされました";
+            subMsg.innerText = "画面を閉じます...";
+            setTimeout(() => { liff.closeWindow(); }, 1000);
+          }
+        } else {
+          document.getElementById('loader').style.display = 'none';
+          msgDiv.innerText = "エラー";
+          subMsg.innerText = "Share Target Pickerが無効です";
+        }
 
-    function changePage(direction) {
-      currentPage += direction;
-      renderPage();
-      window.scrollTo(0, 0); 
+      } catch (err) {
+        document.getElementById('loader').style.display = 'none';
+        msgDiv.innerText = "通信エラー";
+        subMsg.innerText = err;
+      }
     }
+    main();
   </script>
 </body>
 </html>
