@@ -9,10 +9,39 @@
     h2 { text-align: center; margin-bottom: 20px; }
     
     /* ログイン画面のデザイン */
-    #login-screen { text-align: center; padding-top: 50px; }
+    #login-screen { text-align: center; padding-top: 30px; }
     input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 60%; }
     button.login-btn { padding: 10px 20px; font-size: 16px; background-color: #06c755; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; }
     
+    /* ▼▼▼ 更新情報のデザイン (新しく追加) ▼▼▼ */
+    .news-box {
+      margin-top: 40px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      text-align: left;
+      width: 80%;
+      margin-left: auto; 
+      margin-right: auto;
+    }
+    .news-box h3 {
+      font-size: 16px;
+      margin-top: 0;
+      color: #06c755; /* LINEっぽい緑 */
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    .news-box ul {
+      padding-left: 20px;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 0;
+    }
+    .news-box li {
+      margin-bottom: 8px;
+    }
+
     /* ステータスカード */
     .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: bold; font-size: 24px; transition: all 0.3s ease; }
     .status-out { background-color: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
@@ -31,11 +60,10 @@
     
     #loading { text-align: center; color: #999; margin-top: 20px; }
 
-    /* ▼▼▼ ページ送りボタンのデザイン ▼▼▼ */
+    /* ページ送りボタン */
     .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
     .page-btn { padding: 8px 15px; background-color: #eee; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .page-btn:hover:not(:disabled) { background-color: #ddd; }
     #page-info { font-size: 14px; color: #666; }
   </style>
 </head>
@@ -44,11 +72,20 @@
   <h2>🔑 鍵管理システム</h2>
 
   <div id="login-screen">
-    <p>パスワードを入力してください</p>
-    <input type="password" id="pass-input" placeholder="パスワード">
+    <p>閲覧用パスワードを入力</p>
+    <input type="password" id="pass-input" placeholder="Password">
     <button class="login-btn" onclick="checkPassword()">解除</button>
     <p id="error-msg" style="color:red; font-size:14px; margin-top:10px;"></p>
-  </div>
+
+    <div class="news-box">
+      <h3>🔔 お知らせ・更新情報</h3>
+      <ul>
+        <li>2025/01/03：履歴が多いときにページをめくれるようにしました</li>
+        <li>2025/01/01：パスワード機能を追加しました</li>
+        <li>2024/12/25：鍵管理システムの運用を開始しました</li>
+      </ul>
+    </div>
+    </div>
 
   <div id="main-content" style="display:none;">
     
@@ -77,25 +114,22 @@
         <span id="page-info"></span>
         <button id="next-btn" class="page-btn" onclick="changePage(1)">次へ ＞</button>
       </div>
-
     </div>
   </div>
 
   <script>
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    // 【設定1】ここにGASのURLを貼る
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyk2EOmKbPZzUNqCab3lqA8Bttzg0W67vpT05aKpv1pu-vKTLvWAf5nAfPCbx0mwtiD/exec"; 
+    // 【設定1】GASのURL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec"; 
     
-    // 【設定2】ここにパスワードを設定する
+    // 【設定2】パスワード
     const MY_PASSWORD = "miyakyo";
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-    // ページ設定
-    const ITEMS_PER_PAGE = 50; // 1ページに表示する件数
-    let allLogData = [];       // 全データを一時保存する場所
-    let currentPage = 1;       // 現在のページ
+    const ITEMS_PER_PAGE = 50;
+    let allLogData = [];
+    let currentPage = 1;
 
-    // パスワード機能
     function checkPassword() {
       const input = document.getElementById('pass-input').value;
       const errorMsg = document.getElementById('error-msg');
@@ -108,19 +142,14 @@
       }
     }
 
-    // データ取得
     async function fetchLog() {
       try {
         const response = await fetch(GAS_URL);
         const data = await response.json();
         
-        // 最新順に並び替え
         data.reverse();
-        
-        // 最新の状態を表示 (最新データがあれば)
         updateStatusCard(data);
 
-        // データを保存して、1ページ目を表示
         allLogData = data;
         currentPage = 1;
         renderPage();
@@ -134,11 +163,10 @@
       }
     }
 
-    // ステータスカードの更新 (ページめくりに関係なく、常に最新を表示)
     function updateStatusCard(data) {
       const statusDiv = document.getElementById('current-status');
       if (data.length > 0) {
-        const latest = data[0]; // 常に一番上のデータを見る
+        const latest = data[0];
         if (latest.action.includes('借り')) {
           statusDiv.innerHTML = `⚠️ 現在 貸出中<br><span style="font-size:16px; font-weight:normal;">(貸出者: ${latest.name})</span>`;
           statusDiv.className = "status-card status-out";
@@ -153,58 +181,34 @@
       statusDiv.style.display = 'block';
     }
 
-    // ページを描画する機能
     function renderPage() {
       const tbody = document.getElementById('log-body');
-      tbody.innerHTML = ""; // 一旦クリア
-
-      // 表示する範囲を計算 (例: 1ページ目なら 0〜50件目)
+      tbody.innerHTML = "";
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const pageData = allLogData.slice(startIndex, endIndex);
 
-      // 行を作成
       pageData.forEach(item => {
         const row = document.createElement('tr');
         const isBorrow = item.action.includes('借り');
         const badgeClass = isBorrow ? 'badge-borrow' : 'badge-return';
         
-        row.innerHTML = `
-          <td>${item.date}</td>
-          <td>${item.name}</td>
-          <td><span class="badge ${badgeClass}">${item.action}</span></td>
-        `;
+        row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badgeClass}">${item.action}</span></td>`;
         tbody.appendChild(row);
       });
-
-      // ボタンとページ番号の更新
       updatePaginationControls();
     }
 
-    // 「前へ」「次へ」ボタンの管理
     function updatePaginationControls() {
       const totalPages = Math.ceil(allLogData.length / ITEMS_PER_PAGE);
-      const prevBtn = document.getElementById('prev-btn');
-      const nextBtn = document.getElementById('next-btn');
-      const pageInfo = document.getElementById('page-info');
-
-      // ページ情報の表示
-      if (allLogData.length === 0) {
-        pageInfo.innerText = "データなし";
-      } else {
-        pageInfo.innerText = `${currentPage} / ${totalPages} ページ`;
-      }
-
-      // ボタンの有効・無効切り替え
-      prevBtn.disabled = (currentPage === 1);
-      nextBtn.disabled = (currentPage === totalPages || totalPages === 0);
+      document.getElementById('prev-btn').disabled = (currentPage === 1);
+      document.getElementById('next-btn').disabled = (currentPage === totalPages || totalPages === 0);
+      document.getElementById('page-info').innerText = allLogData.length === 0 ? "データなし" : `${currentPage} / ${totalPages} ページ`;
     }
 
-    // ページ切り替え処理
     function changePage(direction) {
       currentPage += direction;
       renderPage();
-      // ページが変わったら上に戻るほうが親切
       window.scrollTo(0, 0); 
     }
   </script>
