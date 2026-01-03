@@ -36,16 +36,20 @@
     body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
     h2 { text-align: center; margin-bottom: 20px; }
 
-    #login-screen { text-align: center; padding-top: 30px; }
+    /* ログインエリア (常に表示) */
+    #login-section { text-align: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
     input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; width: 60%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); }
     button.login-btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; background: var(--accent-color); color: white; font-weight: bold; }
+    
+    /* お知らせボックス (常に表示) */
+    .news-box {
+      background-color: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: left; margin-bottom: 30px;
+    }
+    .news-box h3 { font-size: 16px; margin-top: 0; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    .news-box ul { padding-left: 20px; font-size: 13px; color: var(--text-sub); margin-bottom: 0; }
+    .news-box li { margin-bottom: 5px; }
 
-    /* ステータスカード */
-    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    .status-out { background: var(--status-out-bg); color: var(--status-out-text); border: 2px solid var(--status-out-border); }
-    .status-in { background: var(--status-in-bg); color: var(--status-in-text); border: 2px solid var(--status-in-border); }
-
-    /* ▼▼▼ 掲示板エリアのデザイン ▼▼▼ */
+    /* 掲示板エリア (常に表示) */
     .chat-section {
       background: var(--chat-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-bottom: 30px;
     }
@@ -58,7 +62,15 @@
     .chat-item { padding: 10px; border-radius: 8px; background-color: var(--chat-bubble); font-size: 14px; position: relative; }
     .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; display: flex; justify-content: space-between; }
     .chat-name { font-weight: bold; color: var(--accent-color); }
-    /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
+    /* メインコンテンツ (パスワード解除後) */
+    #hidden-content { display: none; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ステータス & 履歴 */
+    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: var(--card-bg); }
+    .status-out { background: var(--status-out-bg); color: var(--status-out-text); border: 2px solid var(--status-out-border); }
+    .status-in { background: var(--status-in-bg); color: var(--status-in-text); border: 2px solid var(--status-in-border); }
 
     .history-section { padding: 15px; border-radius: 10px; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     h3 { font-size: 16px; margin-top: 0; padding-bottom: 10px; color: var(--text-sub); border-bottom: 1px solid var(--border-color); }
@@ -74,44 +86,63 @@
     .page-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; background: var(--border-color); color: var(--text-main); }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     #page-info { font-size: 14px; color: var(--text-sub); }
+    
+    #loading-bar { text-align:center; margin-bottom: 10px; color: var(--text-sub); font-size:14px; }
   </style>
 </head>
 <body>
 
   <h2>🔑 鍵管理システム</h2>
 
-  <div id="login-screen">
-    <p>閲覧用パスワードを入力</p>
-    <input type="password" id="pass-input" placeholder="Password">
-    <button class="login-btn" onclick="checkPassword()">解除</button>
-    <p id="error-msg" style="color:red; font-size:14px; margin-top:10px;"></p>
+  <div id="login-section">
+    <p style="margin:5px 0;">管理者メニュー（履歴閲覧）</p>
+    <div style="display:flex; justify-content:center; gap:10px;">
+      <input type="password" id="pass-input" placeholder="パスワード">
+      <button class="login-btn" onclick="checkPassword()">解除</button>
+    </div>
+    <p id="error-msg" style="color:red; font-size:14px; margin-top:5px;"></p>
   </div>
 
-  <div id="main-content" style="display:none;">
-    
-    <div id="current-status" class="status-card" style="display:none;">確認中...</div>
+  <div class="news-box">
+    <h3>🔔 お知らせ・更新情報</h3>
+    <ul>
+        <li>2025/01/03：チャット欄を作成しました</li>
+        <li>2025/01/03：ダークモードに対応しました</li>
+        <li>2026/01/03：お知らせ・更新情報の欄を作りました</li>
+        <li>2025/12/26：履歴が多いときにページをめくれるようにしました</li>
+        <li>2025/12/16：パスワード機能を追加しました</li>
+        <li>2024/12/16：鍵管理システムの運用を開始しました</li>
 
-    <div class="chat-section">
-      <h3>💬 みんなの掲示板</h3>
-      <div class="chat-form">
-        <input type="text" id="chat-name" class="chat-input-name" placeholder="名前">
-        <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
-        <button class="chat-btn" onclick="sendChat()">送信</button>
-      </div>
-      <div id="chat-list" class="chat-list">
-        <div style="text-align:center; color:#999;">読み込み中...</div>
-      </div>
+    </ul>
+  </div>
+
+  <div class="chat-section">
+    <h3>💬 みんなの掲示板</h3>
+    <div class="chat-form">
+      <input type="text" id="chat-name" class="chat-input-name" placeholder="名前">
+      <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
+      <button class="chat-btn" onclick="sendChat()">送信</button>
     </div>
+    
+    <div id="loading-bar">読み込み中...</div>
+    
+    <div id="chat-list" class="chat-list">
+      </div>
+  </div>
+
+
+  <div id="hidden-content">
+    
+    <div id="current-status" class="status-card">確認中...</div>
+
     <div class="history-section">
       <h3>最近の履歴</h3>
-      <div id="loading">データを読み込んでいます...</div>
-      
-      <table id="log-table" style="display:none;">
+      <table id="log-table">
         <thead><tr><th>日時</th><th>名前</th><th>操作</th></tr></thead>
         <tbody id="log-body"></tbody>
       </table>
 
-      <div id="pagination" class="pagination" style="display:none;">
+      <div id="pagination" class="pagination">
         <button id="prev-btn" class="page-btn" onclick="changePage(-1)">＜ 前へ</button>
         <span id="page-info"></span>
         <button id="next-btn" class="page-btn" onclick="changePage(1)">次へ ＞</button>
@@ -128,14 +159,30 @@
     const ITEMS_PER_PAGE = 50;
     let allLogData = [];
     let currentPage = 1;
+    let isDataLoaded = false;
+
+    // 画面を開いたらすぐにデータを読みに行く！
+    window.onload = function() {
+      fetchLog();
+    };
 
     function checkPassword() {
       const input = document.getElementById('pass-input').value;
       const errorMsg = document.getElementById('error-msg');
+      
       if (input === MY_PASSWORD) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        fetchLog();
+        // パスワード正解
+        document.getElementById('login-section').style.display = 'none'; // ログイン欄を消す
+        document.getElementById('hidden-content').style.display = 'block'; // 履歴を出す
+        
+        // データ読み込みがまだなら待つ
+        if(isDataLoaded) {
+          updateStatusCard(allLogData);
+          renderPage();
+        } else {
+          document.getElementById('current-status').innerText = "データ読込中...";
+        }
+
       } else {
         errorMsg.innerText = "パスワードが違います";
       }
@@ -146,29 +193,28 @@
         const response = await fetch(GAS_URL);
         const json = await response.json();
         
-        // 1. 掲示板の更新 (json.chat が入ってくる)
+        // 1. 掲示板はすぐに表示 (パスワード不要)
+        document.getElementById('loading-bar').style.display = 'none';
         renderChat(json.chat);
 
-        // 2. 履歴の更新 (json.logs が入ってくる)
-        const logData = json.logs.reverse();
-        updateStatusCard(logData);
-        allLogData = logData;
-        currentPage = 1;
-        renderPage();
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('log-table').style.display = 'table';
-        document.getElementById('pagination').style.display = 'flex';
+        // 2. 履歴データは裏で持っておく
+        allLogData = json.logs.reverse();
+        isDataLoaded = true;
+        
+        // もし既にパスワード解除済みなら表示更新
+        if (document.getElementById('hidden-content').style.display === 'block') {
+          updateStatusCard(allLogData);
+          renderPage();
+        }
 
       } catch (e) {
-        document.getElementById('loading').innerText = "読み込み失敗: " + e;
+        document.getElementById('loading-bar').innerText = "読み込み失敗: " + e;
       }
     }
 
-    // チャットを描画する機能
     function renderChat(chatData) {
       const chatListDiv = document.getElementById('chat-list');
-      chatListDiv.innerHTML = ""; // クリア
+      chatListDiv.innerHTML = "";
 
       if (!chatData || chatData.length === 0) {
         chatListDiv.innerHTML = '<div style="text-align:center; color:#999;">まだ投稿はありません</div>';
@@ -189,7 +235,6 @@
       });
     }
 
-    // チャットを送信する機能
     async function sendChat() {
       const nameInput = document.getElementById('chat-name');
       const msgInput = document.getElementById('chat-msg');
@@ -201,7 +246,6 @@
         return;
       }
 
-      // ボタンを一時的に押せないようにする（連打防止）
       const btn = document.querySelector('.chat-btn');
       btn.disabled = true;
       btn.innerText = "送信中...";
@@ -212,15 +256,14 @@
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'chat', // チャットだよ、と教える
+            type: 'chat',
             name: name,
             text: text
           })
         });
 
-        // 成功したら入力欄を空にして、画面を再読み込み
         msgInput.value = "";
-        fetchLog(); // 画面更新
+        fetchLog(); // 投稿したら再読み込み
 
       } catch (e) {
         alert("送信エラー: " + e);
@@ -245,7 +288,6 @@
         statusDiv.innerText = "履歴がありません";
         statusDiv.className = "status-card";
       }
-      statusDiv.style.display = 'block';
     }
 
     function renderPage() {
@@ -275,7 +317,6 @@
     function changePage(direction) {
       currentPage += direction;
       renderPage();
-      window.scrollTo(0, 0); 
     }
   </script>
 </body>
