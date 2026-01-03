@@ -15,7 +15,6 @@
       --status-in-bg: #d4edda; --status-in-text: #155724; --status-in-border: #c3e6cb;
       --badge-borrow-bg: #ffeeba; --badge-borrow-text: #856404;
       --badge-return-bg: #d4edda; --badge-return-text: #155724;
-      /* 掲示板の色 */
       --chat-bg: #fff; --chat-bubble: #f1f0f0; --chat-mine: #dcf8c6;
     }
     @media (prefers-color-scheme: dark) {
@@ -28,7 +27,6 @@
         --status-in-bg: #10421d; --status-in-text: #85e8a7; --status-in-border: #1e5e2f;
         --badge-borrow-bg: #8a7300; --badge-borrow-text: #ffda6a;
         --badge-return-bg: #1e5e2f; --badge-return-text: #85e8a7;
-        /* 掲示板の色(ダーク) */
         --chat-bg: #242526; --chat-bubble: #3a3b3c; --chat-mine: #005c4b;
       }
     }
@@ -36,13 +34,17 @@
     body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
     h2 { text-align: center; margin-bottom: 20px; }
 
-    /* ▼▼▼ 公開エリア（ログイン・お知らせ・掲示板） ▼▼▼ */
-    #public-screen { display: block; animation: fadeIn 0.5s ease; }
+    /* 画面切り替え */
+    #screen-public { display: block; animation: fadeIn 0.5s ease; }
+    #screen-admin { display: none; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    #login-section { text-align: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+    /* ログインエリア */
+    .login-box { text-align: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
     input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; width: 60%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); }
     button.login-btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; background: var(--accent-color); color: white; font-weight: bold; }
-    
+
+    /* お知らせ & 掲示板 */
     .news-box { background-color: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: left; margin-bottom: 30px; }
     .news-box h3 { font-size: 16px; margin-top: 0; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
     .news-box ul { padding-left: 20px; font-size: 13px; color: var(--text-sub); margin-bottom: 0; }
@@ -53,38 +55,29 @@
     .chat-input-name { width: 25%; padding: 8px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); }
     .chat-input-text { width: 50%; padding: 8px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); flex-grow: 1; }
     .chat-btn { padding: 8px 15px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    
     .chat-list { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
     .chat-item { padding: 10px; border-radius: 8px; background-color: var(--chat-bubble); font-size: 14px; position: relative; }
     .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; display: flex; justify-content: space-between; }
     .chat-name { font-weight: bold; color: var(--accent-color); }
 
-    /* ▼▼▼ 管理者エリア（履歴・ステータス） ▼▼▼ */
-    #admin-screen { display: none; animation: fadeIn 0.5s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+    /* 管理者画面パーツ */
     .logout-bar { text-align: right; margin-bottom: 10px; }
     .logout-btn { background: #999; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-
     .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: var(--card-bg); }
     .status-out { background: var(--status-out-bg); color: var(--status-out-text); border: 2px solid var(--status-out-border); }
     .status-in { background: var(--status-in-bg); color: var(--status-in-text); border: 2px solid var(--status-in-border); }
-
     .history-section { padding: 15px; border-radius: 10px; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     h3 { font-size: 16px; margin-top: 0; padding-bottom: 10px; color: var(--text-sub); border-bottom: 1px solid var(--border-color); }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
     th { color: var(--text-sub); font-weight: normal; font-size: 12px; }
-
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
     .badge-borrow { background: var(--badge-borrow-bg); color: var(--badge-borrow-text); }
     .badge-return { background: var(--badge-return-bg); color: var(--badge-return-text); }
-
     .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
     .page-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; background: var(--border-color); color: var(--text-main); }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     #page-info { font-size: 14px; color: var(--text-sub); }
-    
     #loading-bar { text-align:center; margin-bottom: 10px; color: var(--text-sub); font-size:14px; }
   </style>
 </head>
@@ -92,10 +85,9 @@
 
   <h2>🔑 鍵管理システム</h2>
 
-  <div id="public-screen">
-    
-    <div id="login-section">
-      <p style="margin:5px 0;">パスワードを入力してください</p>
+  <div id="screen-public">
+    <div class="login-box">
+      <p style="margin:5px 0;">管理者メニュー（履歴閲覧）</p>
       <div style="display:flex; justify-content:center; gap:10px;">
         <input type="password" id="pass-input" placeholder="パスワード">
         <button class="login-btn" onclick="checkPassword()">解除</button>
@@ -106,12 +98,8 @@
     <div class="news-box">
       <h3>🔔 お知らせ・更新情報</h3>
       <ul>
-        <li>2025/01/03：掲示板機能を追加しました</li>
-        <li>2025/01/03：ダークモードに対応しました</li>
-        <li>2026/01/03：お知らせ・更新情報の欄を作りました！</li>
-        <li>2025/12/26：履歴が多いときにページをめくれるようにしました</li>
-        <li>2025/12/16：パスワード機能を追加しました</li>
-        <li>2024/12/16：鍵管理システムの運用を開始しました</li>
+        <li>2025/01/05：ダークモードに対応しました🌙</li>
+        <li>2025/01/03：掲示板と履歴を分けました</li>
       </ul>
     </div>
 
@@ -122,30 +110,22 @@
         <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
         <button class="chat-btn" onclick="sendChat()">送信</button>
       </div>
-      
       <div id="loading-bar">読み込み中...</div>
-      
-      <div id="chat-list" class="chat-list">
-        </div>
+      <div id="chat-list" class="chat-list"></div>
     </div>
   </div>
 
-
-  <div id="admin-screen">
-    
+  <div id="screen-admin">
     <div class="logout-bar">
       <button class="logout-btn" onclick="logout()">← 掲示板に戻る</button>
     </div>
-
     <div id="current-status" class="status-card">確認中...</div>
-
     <div class="history-section">
       <h3>最近の履歴</h3>
       <table id="log-table">
         <thead><tr><th>日時</th><th>名前</th><th>操作</th></tr></thead>
         <tbody id="log-body"></tbody>
       </table>
-
       <div id="pagination" class="pagination">
         <button id="prev-btn" class="page-btn" onclick="changePage(-1)">＜ 前へ</button>
         <span id="page-info"></span>
@@ -155,71 +135,76 @@
   </div>
 
   <script>
-    // ▼▼▼ 設定エリア ▼▼▼
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxUeuNcEp9IkMTudQ_AjgXgyhqn6aZoZlNQRpnme0OZFMg5KEzpNtljNtauvuUmFtKY/exec"; 
     const MY_PASSWORD = "miyakyo";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲
-
     const ITEMS_PER_PAGE = 50;
     let allLogData = [];
     let currentPage = 1;
     let isDataLoaded = false;
 
     window.onload = function() {
+      // 1. 保存された名前があれば復元する (★便利機能1)
+      const savedName = localStorage.getItem('chatName');
+      if (savedName) {
+        document.getElementById('chat-name').value = savedName;
+      }
+
+      // 最初の読み込み
       fetchLog();
+      
+      // パスワード欄のエンターキー対応
+      document.getElementById("pass-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          checkPassword();
+        }
+      });
+
+      // 2. 30秒ごとに自動更新する (★便利機能2)
+      setInterval(function() {
+        // パスワード入力中などで邪魔しないよう、静かに更新
+        fetchLog(true); 
+      }, 30000); 
     };
 
     function checkPassword() {
       const input = document.getElementById('pass-input').value;
       const errorMsg = document.getElementById('error-msg');
-      
       if (input === MY_PASSWORD) {
-        // パスワード正解！
-        // 公開画面を消して、管理者画面を出す
-        document.getElementById('public-screen').style.display = 'none';
-        document.getElementById('admin-screen').style.display = 'block';
-        
-        if(isDataLoaded) {
-          updateStatusCard(allLogData);
-          renderPage();
-        } else {
-          document.getElementById('current-status').innerText = "データ読込中...";
-        }
-
+        document.getElementById('screen-public').style.display = 'none';
+        document.getElementById('screen-admin').style.display = 'block';
+        if(isDataLoaded) { updateStatusCard(allLogData); renderPage(); }
+        else { document.getElementById('current-status').innerText = "データ読込中..."; }
       } else {
         errorMsg.innerText = "パスワードが違います";
       }
     }
 
-    // ログアウト（元の画面に戻るだけ）
-    function logout() {
-      location.reload(); 
-    }
+    function logout() { location.reload(); }
 
-    async function fetchLog() {
+    async function fetchLog(isAuto = false) {
       try {
         const response = await fetch(GAS_URL);
         const json = await response.json();
         
-        document.getElementById('loading-bar').style.display = 'none';
+        if (!isAuto) document.getElementById('loading-bar').style.display = 'none';
         renderChat(json.chat);
 
         allLogData = json.logs.reverse();
         isDataLoaded = true;
         
-        // 管理者画面が開いていたらデータ更新
-        if (document.getElementById('admin-screen').style.display === 'block') {
+        if (document.getElementById('screen-admin').style.display === 'block') {
           updateStatusCard(allLogData);
-          renderPage();
+          renderPage(); // 履歴画面を開いているなら更新
         }
-
       } catch (e) {
-        document.getElementById('loading-bar').innerText = "読み込み失敗: " + e;
+        if (!isAuto) document.getElementById('loading-bar').innerText = "読み込み失敗: " + e;
       }
     }
 
     function renderChat(chatData) {
       const chatListDiv = document.getElementById('chat-list');
+      // 一旦中身を全部書き換える（シンプル実装）
       chatListDiv.innerHTML = "";
 
       if (!chatData || chatData.length === 0) {
@@ -247,10 +232,10 @@
       const name = nameInput.value;
       const text = msgInput.value;
 
-      if (!name || !text) {
-        alert("名前とメッセージを入力してください");
-        return;
-      }
+      if (!name || !text) { alert("名前とメッセージを入力してください"); return; }
+
+      // ★名前をスマホに保存する！
+      localStorage.setItem('chatName', name);
 
       const btn = document.querySelector('.chat-btn');
       btn.disabled = true;
@@ -261,16 +246,10 @@
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'chat',
-            name: name,
-            text: text
-          })
+          body: JSON.stringify({ type: 'chat', name: name, text: text })
         });
-
         msgInput.value = "";
         fetchLog();
-
       } catch (e) {
         alert("送信エラー: " + e);
       } finally {
