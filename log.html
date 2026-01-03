@@ -5,66 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>鍵の利用状況</title>
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f2f5; color: #333; }
-    h2 { text-align: center; margin-bottom: 20px; }
-    
-    /* ログイン画面のデザイン */
-    #login-screen { text-align: center; padding-top: 30px; }
-    input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 60%; }
-    button.login-btn { padding: 10px 20px; font-size: 16px; background-color: #06c755; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-    
-    /* ▼▼▼ 更新情報のデザイン (新しく追加) ▼▼▼ */
-    .news-box {
-      margin-top: 40px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      text-align: left;
-      width: 80%;
-      margin-left: auto; 
-      margin-right: auto;
-    }
-    .news-box h3 {
-      font-size: 16px;
-      margin-top: 0;
-      color: #06c755; /* LINEっぽい緑 */
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
-    }
-    .news-box ul {
-      padding-left: 20px;
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 0;
-    }
-    .news-box li {
-      margin-bottom: 8px;
+    /* ▼▼▼ 1. 色の設定 (変数) ▼▼▼ */
+    :root {
+      /* ライトモード（標準）の色 */
+      --bg-color: #f0f2f5;
+      --text-main: #333333;
+      --text-sub: #666666;
+      --card-bg: #ffffff;
+      --border-color: #eeeeee;
+      --input-bg: #ffffff;
+      --input-border: #cccccc;
+      --accent-color: #06c755; /* LINEグリーン */
+      
+      /* ステータス色 (ライト) */
+      --status-out-bg: #fff3cd; --status-out-text: #856404; --status-out-border: #ffeeba;
+      --status-in-bg: #d4edda; --status-in-text: #155724; --status-in-border: #c3e6cb;
+      
+      /* バッジ色 (ライト) */
+      --badge-borrow-bg: #ffeeba; --badge-borrow-text: #856404;
+      --badge-return-bg: #d4edda; --badge-return-text: #155724;
     }
 
+    /* ダークモード（スマホ設定がダークの時）の色 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;   /* 背景：ほぼ黒 */
+        --text-main: #e4e6eb;  /* 文字：オフホワイト */
+        --text-sub: #b0b3b8;   /* サブ文字：グレー */
+        --card-bg: #242526;    /* カード：濃いグレー */
+        --border-color: #3e4042;
+        --input-bg: #3a3b3c;
+        --input-border: #555555;
+        --accent-color: #20c966; /* 少し明るいグリーン */
+
+        /* ステータス色 (ダーク用・目に優しく) */
+        --status-out-bg: #5c4d00; --status-out-text: #ffda6a; --status-out-border: #8a7300;
+        --status-in-bg: #10421d; --status-in-text: #85e8a7; --status-in-border: #1e5e2f;
+
+        /* バッジ色 (ダーク用) */
+        --badge-borrow-bg: #8a7300; --badge-borrow-text: #ffda6a;
+        --badge-return-bg: #1e5e2f; --badge-return-text: #85e8a7;
+      }
+    }
+
+    /* ▼▼▼ 2. 全体のデザイン ▼▼▼ */
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+
+    /* ログイン画面 */
+    #login-screen { text-align: center; padding-top: 30px; }
+    input[type="password"] {
+      padding: 10px; font-size: 16px; border-radius: 5px; width: 60%;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-main);
+    }
+    button.login-btn {
+      padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;
+      background-color: var(--accent-color);
+      color: white;
+      font-weight: bold;
+    }
+
+    /* お知らせボックス */
+    .news-box {
+      margin-top: 40px;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: left;
+      width: 80%;
+      margin-left: auto; margin-right: auto;
+      background-color: var(--card-bg);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .news-box h3 {
+      font-size: 16px; margin-top: 0; padding-bottom: 10px;
+      color: var(--accent-color);
+      border-bottom: 2px solid var(--border-color);
+    }
+    .news-box ul { padding-left: 20px; font-size: 13px; color: var(--text-sub); margin-bottom: 0; }
+    .news-box li { margin-bottom: 8px; }
+
     /* ステータスカード */
-    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: bold; font-size: 24px; transition: all 0.3s ease; }
-    .status-out { background-color: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
-    .status-in { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-    
-    /* 履歴テーブル */
-    .history-section { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    h3 { font-size: 16px; margin-top: 0; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .status-card {
+      text-align: center; padding: 30px 20px; margin-bottom: 30px;
+      border-radius: 15px; font-weight: bold; font-size: 24px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .status-out {
+      background-color: var(--status-out-bg);
+      color: var(--status-out-text);
+      border: 2px solid var(--status-out-border);
+    }
+    .status-in {
+      background-color: var(--status-in-bg);
+      color: var(--status-in-text);
+      border: 2px solid var(--status-in-border);
+    }
+
+    /* 履歴テーブルエリア */
+    .history-section {
+      padding: 15px; border-radius: 10px;
+      background-color: var(--card-bg);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    h3.history-title {
+      font-size: 16px; margin-top: 0; padding-bottom: 10px;
+      color: var(--text-sub);
+      border-bottom: 1px solid var(--border-color);
+    }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid #eee; }
-    th { color: #888; font-weight: normal; font-size: 12px; }
-    
+    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { color: var(--text-sub); font-weight: normal; font-size: 12px; }
+
+    /* バッジ（借りる/返す） */
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-    .badge-borrow { background: #ffeeba; color: #856404; }
-    .badge-return { background: #d4edda; color: #155724; }
-    
-    #loading { text-align: center; color: #999; margin-top: 20px; }
+    .badge-borrow { background: var(--badge-borrow-bg); color: var(--badge-borrow-text); }
+    .badge-return { background: var(--badge-return-bg); color: var(--badge-return-text); }
+
+    #loading { text-align: center; color: var(--text-sub); margin-top: 20px; }
 
     /* ページ送りボタン */
     .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
-    .page-btn { padding: 8px 15px; background-color: #eee; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+    .page-btn {
+      padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;
+      background-color: var(--border-color); /* 薄いグレー */
+      color: var(--text-main);
+    }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    #page-info { font-size: 14px; color: #666; }
+    #page-info { font-size: 14px; color: var(--text-sub); }
+
   </style>
 </head>
 <body>
@@ -72,7 +150,7 @@
   <h2>🔑 鍵管理システム</h2>
 
   <div id="login-screen">
-    <p>パスワードを入力してください</p>
+    <p>閲覧用パスワードを入力</p>
     <input type="password" id="pass-input" placeholder="Password">
     <button class="login-btn" onclick="checkPassword()">解除</button>
     <p id="error-msg" style="color:red; font-size:14px; margin-top:10px;"></p>
@@ -80,13 +158,12 @@
     <div class="news-box">
       <h3>🔔 お知らせ・更新情報</h3>
       <ul>
-        <li>2026/01/03：お知らせ・更新情報の欄を作りました！</li>
-        <li>2025/12/26：履歴が多いときにページをめくれるようにしました</li>
-        <li>2025/12/16：パスワード機能を追加しました</li>
-        <li>2024/12/16：鍵管理システムの運用を開始しました</li>
+        <li>2025/01/05：ダークモードに対応しました🌙</li>
+        <li>2025/01/03：履歴のページめくり機能を追加</li>
+        <li>2025/01/01：パスワード機能を追加しました</li>
       </ul>
     </div>
-    </div>
+  </div>
 
   <div id="main-content" style="display:none;">
     
@@ -95,7 +172,7 @@
     </div>
 
     <div class="history-section">
-      <h3>最近の履歴</h3>
+      <h3 class="history-title">最近の履歴</h3>
       <div id="loading">データを読み込んでいます...</div>
       
       <table id="log-table" style="display:none;">
@@ -106,8 +183,7 @@
             <th>操作</th>
           </tr>
         </thead>
-        <tbody id="log-body">
-          </tbody>
+        <tbody id="log-body"></tbody>
       </table>
 
       <div id="pagination" class="pagination" style="display:none;">
@@ -120,10 +196,10 @@
 
   <script>
     // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-    // 【設定1】GASのURL
+    // 【設定1】GASのURL (設定済み)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec"; 
     
-    // 【設定2】パスワード
+    // 【設定2】パスワード (設定済み)
     const MY_PASSWORD = "miyakyo";
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
