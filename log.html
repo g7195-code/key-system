@@ -1,91 +1,393 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="ja">
-
+<html>
 <head>
-      <script type="module" crossorigin src="https://static.line-scdn.net/line_web_login/edge/dist/assets/polyfills-CGqTV0cN.js"></script>
-
   <meta charset="UTF-8">
-  <meta name="robots" content="noindex">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>LINE Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>部活動ポータル</title>
+  <style>
+    /* ▼▼▼ デザイン設定 (変数) ▼▼▼ */
+    :root {
+      --bg-color: #f0f2f5; --text-main: #333; --text-sub: #666;
+      --card-bg: #fff; --border-color: #eee;
+      --input-bg: #fff; --input-border: #ccc;
+      --accent-color: #06c755;
+      --danger-color: #ff4b4b;
+      
+      --status-out-bg: #fff3cd; --status-out-text: #856404; --status-out-border: #ffeeba;
+      --status-in-bg: #d4edda; --status-in-text: #155724; --status-in-border: #c3e6cb;
+      --badge-borrow-bg: #ffeeba; --badge-borrow-text: #856404;
+      --badge-return-bg: #d4edda; --badge-return-text: #155724;
+      
+      --chat-bg: #fff; --chat-bubble: #f1f0f0; --chat-mine: #dcf8c6;
+      --report-bubble: #ffebee; --report-border: #ffcdd2;
+      
+      --weather-bg: linear-gradient(135deg, #6dd5ed, #2193b0); --weather-text: #fff;
+      --check-bg: #fff8e1; --check-border: #ffecb3; --check-text: #5d4037;
+    }
 
-  <link rel="shortcut icon" type="image/x-icon" href="https://vos.line-scdn.net/login-web/img/favicon.ico">
-  <link rel="icon" type="image/x-icon" sizes="32x32" href="https://vos.line-scdn.net/login-web/img/favicon-32x32.png">
-  <link rel="icon" type="image/x-icon" sizes="16x16" href="https://vos.line-scdn.net/login-web/img/favicon-16x16.png">
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212; --text-main: #e4e6eb; --text-sub: #b0b3b8;
+        --card-bg: #242526; --border-color: #3e4042;
+        --input-bg: #3a3b3c; --input-border: #555;
+        --accent-color: #20c966;
+        --danger-color: #ff6b6b;
+        
+        --status-out-bg: #5c4d00; --status-out-text: #ffda6a; --status-out-border: #8a7300;
+        --status-in-bg: #10421d; --status-in-text: #85e8a7; --status-in-border: #1e5e2f;
+        --badge-borrow-bg: #8a7300; --badge-borrow-text: #ffda6a;
+        --badge-return-bg: #1e5e2f; --badge-return-text: #85e8a7;
+        
+        --chat-bg: #242526; --chat-bubble: #3a3b3c; --chat-mine: #005c4b;
+        --report-bubble: #4a0d0d; --report-border: #7f2e2e;
 
-  <link rel="apple-touch-icon-precomposed" href="https://vos.line-scdn.net/login-web/img/apple-touch-icon-precomposed.png">
+        --weather-bg: linear-gradient(135deg, #2c3e50, #4ca1af);
+        --check-bg: #3e2723; --check-border: #5d4037; --check-text: #ffcdd2;
+      }
+    }
 
-<script>/* analytics */
-(function(g,d){
-  var v='release/stable';
-  g._trmq=[];g._trm=function(){g._trmq.push(arguments)};
-  g.onerror=function(m,f,l,c){g._trm('send','exception',m,f,l,c)};
-  var h=location.protocol==='https:'?'https://d.line-scdn.net':'http://d.line-cdn.net';
-  var s=d.createElement('script');s.async=1;
-  s.src=h+'/n/_4/torimochi.js/public/v1/'+v+'/min/torimochi.js';
-  var t=d.getElementsByTagName('script')[0];t.parentNode.insertBefore(s,t);
-})(window, document);
+    body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
+    h2 { text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; }
 
-_trm('performance', { rate: 0.05 });
-_trm('enable', { productKey: "line-web-login-real" });
-/* /analytics */</script>
+    #screen-public, #screen-admin { animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-<script type="text/javascript" charset="UTF-8" src="https://access.line.me/oauth2/v2.1/messages"></script>
+    /* 共通ボックススタイル */
+    .common-box { background-color: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .common-box h3 { font-size: 15px; margin-top: 0; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
 
-      <script type="module" crossorigin src="https://static.line-scdn.net/line_web_login/edge/dist/assets/commonError-hN84GS2B.js"></script>
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/common-BRp4-Zwj.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/modulepreload-polyfill-yj_LhEhV.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cButton01-B1fd6ZiW.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/CompareVersion-CeJ6Xyli.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cExternalLinkModal-CoHPc8ZR.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/createLayoutWrapper-CdbFb2JW.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/Constant-BLc9ctkG.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/lFooter01-B9FwwFbY.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cLogo01-CqaSyojQ.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/lContents01-Dk03ln1V.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/uLayoutMixin-DkXLoPuM.js">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/common-BEqGuuLX.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cExternalLinkModal-DRr-hx7O.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cButton01-DjQx_bLy.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/lContents01-C82IcGx0.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/lFooter01-9ushudBt.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/commonError-DeytHaHF.css">
+    /* ログインエリア */
+    .login-box {
+      background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      text-align: center; margin-bottom: 20px;
+    }
+    input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; width: 60%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); }
+    button.login-btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 5px; background: var(--accent-color); color: white; font-weight: bold; }
 
+    /* お知らせ */
+    .news-box ul { padding-left: 20px; font-size: 13px; color: var(--text-sub); margin-bottom: 0; }
+    .news-box li { margin-bottom: 5px; }
+
+    /* カレンダー (NEW!) */
+    .calendar-frame { width: 100%; height: 400px; border: none; border-radius: 5px; }
+
+    /* 掲示板 */
+    .chat-section { background: var(--chat-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 40px; }
+    .chat-form { display: flex; gap: 5px; margin-bottom: 15px; }
+    .chat-input-name { width: 25%; padding: 10px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); }
+    .chat-input-text { width: 50%; padding: 10px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); flex-grow: 1; }
+    .chat-btn { padding: 0 20px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .chat-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .chat-item { padding: 10px; border-radius: 8px; background-color: var(--chat-bubble); font-size: 14px; position: relative; }
+    .chat-item.report-item { background-color: var(--report-bubble); border: 1px solid var(--report-border); }
+    .chat-item.report-item .chat-text { color: var(--danger-color); font-weight: bold; }
+    .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 3px; display: flex; justify-content: space-between; }
+    .chat-name { font-weight: bold; color: var(--accent-color); }
+
+    /* 天気予報 */
+    #weather-box {
+      background: var(--weather-bg); color: var(--weather-text); padding: 15px; border-radius: 12px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .weather-left { display: flex; align-items: center; gap: 15px; }
+    .weather-icon { font-size: 36px; }
+    .weather-temp { font-size: 28px; font-weight: bold; }
+    .weather-loc { font-size: 13px; opacity: 0.9; }
+
+    /* 退出チェックリスト */
+    .checklist-box {
+      background-color: var(--check-bg); border: 2px solid var(--check-border); color: var(--check-text);
+      padding: 15px; border-radius: 12px; margin-bottom: 20px;
+    }
+    .checklist-box h3 { font-size: 15px; margin-top: 0; border-bottom: 1px solid var(--check-border); padding-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+    .check-item { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .check-item input { margin-right: 10px; transform: scale(1.3); cursor: pointer; }
+    .check-complete { text-decoration: line-through; opacity: 0.6; }
+    #check-msg { display: none; text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--check-text); font-weight: bold; font-size: 18px; color: var(--accent-color); animation: popUp 0.5s ease; }
+    @keyframes popUp { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    /* 備品報告ボタン */
+    .report-btn-area { text-align: center; margin-bottom: 50px; }
+    .report-open-btn {
+      background-color: var(--card-bg); color: var(--danger-color); border: 2px solid var(--danger-color);
+      padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
+    }
+    .report-open-btn:active { transform: scale(0.95); }
+    #report-form-box { display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px solid var(--danger-color); margin-bottom: 20px; }
+    .report-input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 5px; }
+
+    /* 管理者画面 */
+    .logout-bar { text-align: right; margin-bottom: 10px; }
+    .logout-btn { background: #999; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: var(--card-bg); }
+    .status-out { background: var(--status-out-bg); color: var(--status-out-text); border: 2px solid var(--status-out-border); }
+    .status-in { background: var(--status-in-bg); color: var(--status-in-text); border: 2px solid var(--status-in-border); }
+    .history-section { padding: 15px; border-radius: 10px; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { color: var(--text-sub); font-weight: normal; font-size: 12px; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .badge-borrow { background: var(--badge-borrow-bg); color: var(--badge-borrow-text); }
+    .badge-return { background: var(--badge-return-bg); color: var(--badge-return-text); }
+    .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
+    .page-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; background: var(--border-color); color: var(--text-main); }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    #page-info { font-size: 14px; color: var(--text-sub); }
+    #loading-bar { text-align:center; margin-bottom: 10px; color: var(--text-sub); font-size:14px; }
+  </style>
 </head>
+<body>
 
-<body ontouchstart="">
-<noscript>
-  <div class="LyWrap">
-    <!--CONTENTS-AREA-->
-    <div class="LyContents" role="main">
-      <div class="lyContentsInner">
-        <div class="MdBox01">
-          <section class="mdBox01Inner MdLYR03Error">
-            <div class="MdLogo01 mdLogo01P01">
-              <h1 class="mdLogo01Img">LINE</h1>
-            </div>
-            <h2 class="mdLYR03Title mdMN10Title">
-              <span class="mdLYR03Icon MdIco01Alert">alert</span>
-              <span>JavaScript エラー</span>
-            </h2>
-            <p class="mdLYR03Desc mdMN10Desc">
-              ブラウザでJavaScriptが無効になっています。<br />
-正しく利用するために、JavaScriptを有効に設定してください。            </p>
-          </section>
+  <h2>🔑 鍵管理システム</h2>
+
+  <div id="screen-public" style="display:block;">
+
+    <div class="login-box">
+      <p style="margin:5px 0; font-size:14px; color:var(--text-sub);">管理者メニュー（履歴閲覧）</p>
+      <div style="display:flex; justify-content:center; gap:10px;">
+        <input type="password" id="pass-input" placeholder="パスワード">
+        <button class="login-btn" onclick="checkPassword()">解除</button>
+      </div>
+      <p id="error-msg" style="color:red; font-size:13px; margin-top:5px;"></p>
+    </div>
+
+    <div class="common-box news-box">
+      <h3>🔔 お知らせ・更新情報</h3>
+      <ul>
+        <li>2025/01/05：予定表（カレンダー）を追加📅</li>
+        <li>2025/01/05：備品報告機能を追加🛠️</li>
+      </ul>
+    </div>
+
+    <div class="chat-section">
+      <h3>💬 みんなの掲示板</h3>
+      <div class="chat-form">
+        <input type="text" id="chat-name" class="chat-input-name" placeholder="名前">
+        <input type="text" id="chat-msg" class="chat-input-text" placeholder="メッセージ...">
+        <button class="chat-btn" onclick="sendChat()">送信</button>
+      </div>
+      <div id="loading-bar">読み込み中...</div>
+      <div id="chat-list" class="chat-list"></div>
+    </div>
+
+    <div class="common-box">
+      <h3>📅 今月の予定</h3>
+      <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?height=400&wkst=1&bgcolor=%23ffffff&ctz=Asia%2FTokyo&showTitle=0&src=ja.japanese%23holiday%40group.v.calendar.google.com&color=%230B8043"></iframe>
+    </div>
+
+    <div id="weather-box" style="display:none;">
+      <div class="weather-left">
+        <div id="w-icon" class="weather-icon">☀️</div>
+        <div>
+          <div class="weather-loc">宮城・仙台</div>
+          <div id="w-temp" class="weather-temp">--°C</div>
         </div>
+      </div>
+      <div style="font-size:12px;">現在</div>
+    </div>
+
+    <div class="checklist-box">
+      <h3>⚠️ 最後に帰る人はチェック！</h3>
+      <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> 電気・暖房は消した？</label>
+      <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> 窓・戸締まりはOK？</label>
+      <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> ゴミは片付けた？</label>
+      <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> 忘れ物はない？</label>
+      <div id="check-msg">お疲れさまでした！<br>行ってらっしゃい！👋</div>
+    </div>
+
+    <div id="report-form-box">
+      <p style="margin:0 0 10px 0; font-weight:bold; color:var(--danger-color);">破損・修理依頼</p>
+      <input type="text" id="report-name" class="report-input" placeholder="あなたの名前">
+      <input type="text" id="report-item" class="report-input" placeholder="壊れたもの（例: 的枠、共用矢）">
+      <input type="text" id="report-detail" class="report-input" placeholder="詳細（例: 枠が割れています）">
+      <div style="text-align:right;">
+        <button class="chat-btn" style="background:var(--danger-color);" onclick="sendReport()">報告送信</button>
+      </div>
+    </div>
+    <div class="report-btn-area">
+      <div class="report-open-btn" onclick="toggleReportForm()">
+        🛠️ 備品・修理を報告する
+      </div>
+    </div>
+
+  </div>
+
+
+  <div id="screen-admin" style="display:none;">
+    <div class="logout-bar">
+      <button class="logout-btn" onclick="logout()">← 掲示板に戻る</button>
+    </div>
+    <div id="current-status" class="status-card">確認中...</div>
+    <div class="history-section">
+      <h3>最近の履歴</h3>
+      <table id="log-table">
+        <thead><tr><th>日時</th><th>名前</th><th>操作</th></tr></thead>
+        <tbody id="log-body"></tbody>
+      </table>
+      <div id="pagination" class="pagination">
+        <button id="prev-btn" class="page-btn" onclick="changePage(-1)">＜ 前へ</button>
+        <span id="page-info"></span>
+        <button id="next-btn" class="page-btn" onclick="changePage(1)">次へ ＞</button>
       </div>
     </div>
   </div>
-</noscript>
 
-<div id="__layout">
-  <div class="LyBody" id="app">
-    <app app-data="{&quot;props&quot;:{&quot;code&quot;:400,&quot;message&quot;:&quot;Bad Request&quot;,&quot;text&quot;:&quot;Bad Request.&quot;},&quot;slots&quot;:{&quot;serverside_field&quot;:[{&quot;type&quot;:&quot;hidden&quot;,&quot;name&quot;:&quot;__csrf&quot;,&quot;value&quot;:&quot;tef8fmhxuS37bDmIyNIYZI&quot;,&quot;id&quot;:&quot;__csrf&quot;},{&quot;type&quot;:&quot;hidden&quot;,&quot;name&quot;:&quot;lang&quot;,&quot;value&quot;:&quot;ja&quot;}],&quot;serverside_redirect_query&quot;:[{&quot;type&quot;:&quot;hidden&quot;,&quot;name&quot;:&quot;__csrf&quot;,&quot;value&quot;:&quot;tef8fmhxuS37bDmIyNIYZI&quot;,&quot;id&quot;:&quot;__csrf&quot;}]}}" />
-  </div>
-</div>
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQRJxFq38wmoqsUAutkeq4XWIggjn2lMWZEGTSk4VdR6qIEJiyX9yXTLXn1wZNrThX/exec"; 
+    const MY_PASSWORD = "miyakyo";
+    const ITEMS_PER_PAGE = 50;
+    let allLogData = [];
+    let currentPage = 1;
+    let isDataLoaded = false;
 
+    window.onload = function() {
+      getWeather();
+      const savedName = localStorage.getItem('chatName');
+      if (savedName) {
+        document.getElementById('chat-name').value = savedName;
+        document.getElementById('report-name').value = savedName;
+      }
+      fetchLog();
+      setInterval(() => fetchLog(true), 30000); 
+      document.getElementById("pass-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") { event.preventDefault(); checkPassword(); }
+      });
+    };
 
+    async function getWeather() {
+      try {
+        const url = "https://api.open-meteo.com/v1/forecast?latitude=38.2682&longitude=140.8694&current_weather=true&timezone=Asia%2FTokyo";
+        const res = await fetch(url);
+        const data = await res.json();
+        const code = data.current_weather.weathercode;
+        let icon = "☁️";
+        if (code === 0) icon = "☀️"; else if (code <= 3) icon = "⛅"; else if (code <= 67) icon = "☔"; else if (code <= 77) icon = "☃️";
+        document.getElementById('w-temp').innerText = data.current_weather.temperature + "°C";
+        document.getElementById('w-icon').innerText = icon;
+        document.getElementById('weather-box').style.display = "flex";
+      } catch(e) {}
+    }
 
+    function toggleReportForm() {
+      const box = document.getElementById('report-form-box');
+      box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function sendReport() {
+      const name = document.getElementById('report-name').value;
+      const item = document.getElementById('report-item').value;
+      const detail = document.getElementById('report-detail').value;
+      if(!name || !item) { alert("名前と壊れたものを入力してください"); return; }
+      
+      const reportMsg = `🚨【破損・修理依頼】\n品名：${item}\n詳細：${detail}`;
+      sendChatInternal(name, reportMsg);
+      document.getElementById('report-item').value = "";
+      document.getElementById('report-detail').value = "";
+      document.getElementById('report-form-box').style.display = 'none';
+      alert("報告を送信しました。\n記録され、管理者へメールが送信されます。");
+    }
+
+    function sendChat() {
+      const name = document.getElementById('chat-name').value;
+      const text = document.getElementById('chat-msg').value;
+      if (!name || !text) { alert("名前とメッセージを入力してください"); return; }
+      sendChatInternal(name, text);
+    }
+
+    async function sendChatInternal(name, text) {
+      localStorage.setItem('chatName', name);
+      document.getElementById('loading-bar').style.display = 'block';
+      document.getElementById('loading-bar').innerText = "送信中...";
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'chat', name: name, text: text })
+        });
+        document.getElementById('chat-msg').value = "";
+        setTimeout(() => fetchLog(), 1000); 
+      } catch (e) { alert("送信エラー: " + e); }
+    }
+
+    async function fetchLog(isAuto = false) {
+      try {
+        const response = await fetch(GAS_URL);
+        const json = await response.json();
+        if (!isAuto) document.getElementById('loading-bar').style.display = 'none';
+        renderChat(json.chat);
+        allLogData = json.logs.reverse();
+        isDataLoaded = true;
+        if (document.getElementById('screen-admin').style.display === 'block') {
+          updateStatusCard(allLogData);
+          renderPage();
+        }
+      } catch (e) { if (!isAuto) document.getElementById('loading-bar').innerText = "読込失敗"; }
+    }
+
+    function renderChat(chatData) {
+      const chatListDiv = document.getElementById('chat-list');
+      chatListDiv.innerHTML = "";
+      if (!chatData || chatData.length === 0) {
+        chatListDiv.innerHTML = '<div style="text-align:center; color:#999;">まだ投稿はありません</div>'; return;
+      }
+      chatData.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'chat-item';
+        if (item.text.includes("【破損・修理依頼】")) div.classList.add("report-item");
+        div.innerHTML = `<div class="chat-meta"><span class="chat-name">${item.name}</span><span>${item.date}</span></div><div class="chat-text">${item.text.replace(/\n/g, '<br>')}</div>`;
+        chatListDiv.appendChild(div);
+      });
+    }
+
+    function toggleCheck(checkbox) {
+      const label = checkbox.parentElement;
+      if (checkbox.checked) {
+        label.classList.add("check-complete");
+      } else {
+        label.classList.remove("check-complete");
+      }
+      const allChecks = document.querySelectorAll('.checklist-box input[type="checkbox"]');
+      let allDone = true;
+      allChecks.forEach(box => { if (!box.checked) allDone = false; });
+      const msg = document.getElementById('check-msg');
+      if (allDone) msg.style.display = 'block'; else msg.style.display = 'none';
+    }
+    
+    function checkPassword() {
+      if (document.getElementById('pass-input').value === MY_PASSWORD) {
+        document.getElementById('screen-public').style.display = 'none';
+        document.getElementById('screen-admin').style.display = 'block';
+        if(isDataLoaded) { updateStatusCard(allLogData); renderPage(); }
+      } else document.getElementById('error-msg').innerText = "パスワードが違います";
+    }
+    function logout() { location.reload(); }
+    function updateStatusCard(data) {
+      const statusDiv = document.getElementById('current-status');
+      if (data.length > 0) {
+        const latest = data[0];
+        if (latest.action.includes('借り')) {
+          statusDiv.innerHTML = `⚠️ 現在 貸出中<br><span style="font-size:16px; font-weight:normal;">(貸出者: ${latest.name})</span>`;
+          statusDiv.className = "status-card status-out";
+        } else {
+          statusDiv.innerHTML = `✅ 現在 警備員室<br><span style="font-size:16px; font-weight:normal;">(最終返却: ${latest.name})</span>`;
+          statusDiv.className = "status-card status-in";
+        }
+      } else { statusDiv.innerText = "履歴がありません"; statusDiv.className = "status-card"; }
+    }
+    function renderPage() {
+      const tbody = document.getElementById('log-body'); tbody.innerHTML = "";
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      allLogData.slice(start, start + ITEMS_PER_PAGE).forEach(item => {
+        const row = document.createElement('tr');
+        const badge = item.action.includes('借り') ? 'badge-borrow' : 'badge-return';
+        row.innerHTML = `<td>${item.date}</td><td>${item.name}</td><td><span class="badge ${badge}">${item.action}</span></td>`;
+        tbody.appendChild(row);
+      });
+      document.getElementById('prev-btn').disabled = (currentPage === 1);
+      document.getElementById('next-btn').disabled = (currentPage === Math.ceil(allLogData.length / ITEMS_PER_PAGE) || allLogData.length === 0);
+      document.getElementById('page-info').innerText = allLogData.length === 0 ? "データなし" : `${currentPage} / ${Math.ceil(allLogData.length / ITEMS_PER_PAGE)} ページ`;
+    }
+    function changePage(d) { currentPage += d; renderPage(); }
+  </script>
 </body>
-
 </html>
