@@ -51,7 +51,7 @@
   // 元ファイルの値を維持しています。
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec';
   const LIFF_ID = '2008690527-hcW4PPyp';
-  const REQUEST_TIMEOUT_MS = 10000;
+  const REQUEST_TIMEOUT_MS = 3000;
   const ACTIONS = Object.freeze({
     borrow: Object.freeze({ message: '借りました', log: '借りる' }),
     return: Object.freeze({ message: '返しました', log: '返す' })
@@ -81,28 +81,23 @@
     finish('画面を閉じてください', 'LINEまたはブラウザーの戻る操作で閉じてください');
   }
 
-  async function sendLog(profile, action) {
+  function sendLog(profile, action) {
+    // 元GASが受け取るJSON項目名を維持。sendBeaconは画面遷移中も送信を継続します。
+    // 成功は「送信キュー受付」であり、GASやシートへの保存完了を意味しません。
+    const payload = JSON.stringify({ userName: profile.displayName, userId: profile.userId, action });
+    const body = new Blob([payload], { type: 'text/plain;charset=UTF-8' });
+    if (navigator.sendBeacon && navigator.sendBeacon(GAS_URL, body)) {
+      return Promise.resolve('queued');
+    }
+
+    // sendBeaconが使えない場合も、keepalive付きでバックグラウンド送信します。
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-    try {
-      // 元GASが受け取るJSON項目名を維持。text/plainでCORS preflightを避けます。
-      // no-corsのため、応答本文を読んでGAS側の保存成否を確認することはできません。
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        cache: 'no-store',
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: JSON.stringify({
-          userName: profile.displayName,
-          userId: profile.userId,
-          action
-        }),
-        signal: controller.signal
-      });
-      return true;
-    } finally {
-      clearTimeout(timeout);
-    }
+    return fetch(GAS_URL, {
+      method: 'POST', mode: 'no-cors', cache: 'no-store', keepalive: true,
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: payload, signal: controller.signal
+    }).then(() => 'sent').finally(() => clearTimeout(timeout));
   }
 
   async function main() {
@@ -141,9 +136,9 @@
       }).format(new Date());
       const message = `${timeText}に${profile.displayName}が鍵を${action.message}`;
 
-      $('msg').textContent = '送信先を選択してください';
-      $('sub-msg').textContent = 'LINEの共有画面で送信先と内容を確認してください';
-      addLog('送信先選択を開きます');
+      $('msg').textContent = '送信先を選択';
+      $('sub-msg').textContent = '送信先と内容を確認してください';
+      addLog('送信先を選択');
       if (busy) return;
       busy = true;
       const result = await liff.shareTargetPicker([{ type: 'text', text: message }]);
@@ -154,17 +149,18 @@
         return;
       }
 
-      addLog('LINE共有処理が完了しました');
-      $('msg').textContent = 'ログを保存しています...';
-      addLog('GASへログを送信しています');
+      addLog('LINE送信完了');
+      // ログ通信の完了を待たずに完了画面を出し、操作待ちをなくします。
+      finish('送信完了', 'LINE通知を送信しました。LOGを確認してください');
+      addLog('LOG送信を開始');
       try {
-        await sendLog(profile, action.log);
-        addLog('GASへの通信が完了しました（シートへの保存結果は未確認）');
-        finish('送信完了', 'LINEの共有処理が完了しました。ログが記録されたか、必要に応じてスプレッドシートを確認してください');
+        const logState = await sendLog(profile, action.log);
+        addLog(logState === 'queued' ? 'LOG送信受付済み（保存結果は未確認）' : 'LOG通信完了（保存結果は未確認）');
       } catch (err) {
-        const why = err && err.name === 'AbortError' ? 'GAS通信が10秒でタイムアウトしました' : `GAS通信エラー: ${err.message || String(err)}`;
+        const why = err && err.name === 'AbortError' ? 'LOG通信がタイムアウトしました' : `LOG通信エラー: ${err.message || String(err)}`;
         addLog(why);
-        finish('LINE通知は送信済みです', `ただしGASログを確認できません。${why}`, true);
+        $('sub-msg').textContent = `通知送信済み。${why}`;
+        $('sub-msg').classList.add('error');
       }
     } catch (err) {
       console.error('LIFF処理エラー', err);
