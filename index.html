@@ -6,28 +6,35 @@
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="light dark">
   <title>鍵の貸し借り</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link rel="preconnect" href="https://static.line-scdn.net" crossorigin>
+  <link rel="preconnect" href="https://script.google.com" crossorigin>
+  <script>window.__liffLoadFailed = false;</script>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js" onerror="window.__liffLoadFailed = true"></script>
   <style>
-    :root { color-scheme:light dark; --bg:#f0f2f5; --fg:#24272b; --muted:#626b75; --card:#fff; --green:#06c755; --error:#b42318; }
-    @media (prefers-color-scheme:dark) { :root { --bg:#121416; --fg:#f2f4f7; --muted:#aab2bd; --card:#1d2227; --green:#20c966; --error:#ff8a80; } }
+    :root { color-scheme:light dark; --bg:#f0f2f5; --fg:#24272b; --muted:#626b75; --card:#fff; --green:#06c755; --ok:#067a37; --error:#b42318; --line:#c9ced6; }
+    @media (prefers-color-scheme:dark) { :root { --bg:#121416; --fg:#f2f4f7; --muted:#aab2bd; --card:#1d2227; --green:#20c966; --ok:#4ade80; --error:#ff8a80; --line:#39414a; } }
     * { box-sizing:border-box; }
-    body { margin:0; padding:36px 16px calc(24px + env(safe-area-inset-bottom)); background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; text-align:center; }
-    main { max-width:640px; margin:auto; }
-    .card { padding:24px; border-radius:14px; background:var(--card); box-shadow:0 2px 12px #0002; }
-    #loader { width:44px; height:44px; margin:0 auto 16px; border:4px solid var(--muted); border-top-color:var(--green); border-radius:50%; animation:spin 1s linear infinite; }
+    html, body { min-height:100%; }
+    body { margin:0; padding:calc(32px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Segoe UI",sans-serif; text-align:center; }
+    main { max-width:520px; margin:auto; }
+    .card { padding:24px 20px; border-radius:14px; background:var(--card); box-shadow:0 2px 12px #0002; }
+    #loader { width:44px; height:44px; margin:0 auto 16px; border:4px solid var(--line); border-top-color:var(--green); border-radius:50%; animation:spin .9s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    h1 { margin:0 0 8px; font-size:20px; }
-    #sub-msg { margin:0; color:var(--muted); overflow-wrap:anywhere; }
-    #log-panel { margin-top:20px; padding:14px 16px; border:1px solid #8888; border-radius:10px; text-align:left; }
-    #log-panel h2 { margin:0 0 8px; font-size:16px; }
-    #log-list { margin:0; padding-left:22px; font-size:13px; }
-    #log-list li { margin:6px 0; overflow-wrap:anywhere; }
-    button { min-height:44px; margin-top:18px; padding:10px 18px; border:0; border-radius:8px; background:var(--green); color:#fff; font-size:16px; font-weight:650; }
-    button:focus-visible { outline:3px solid #1677ff; outline-offset:2px; }
-    .error { color:var(--error); }
-    .hint { margin:14px 0 0; color:var(--muted); font-size:12px; }
+    h1 { margin:0 0 8px; font-size:20px; line-height:1.4; }
+    h1.ok { color:var(--ok); }
+    h1.error { color:var(--error); }
+    #sub-msg { margin:0; color:var(--muted); line-height:1.6; overflow-wrap:anywhere; }
+    .actions { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+    button { min-height:48px; padding:10px 18px; border:0; border-radius:10px; background:var(--green); color:#fff; font:inherit; font-size:16px; font-weight:650; cursor:pointer; }
+    button.secondary { background:transparent; color:var(--fg); border:1px solid var(--line); font-weight:500; }
+    button:focus-visible, summary:focus-visible { outline:3px solid #1677ff; outline-offset:2px; }
+    button:active { opacity:.85; }
+    details { margin-top:20px; text-align:left; border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+    summary { cursor:pointer; font-size:14px; color:var(--muted); }
+    #log-list { margin:10px 0 0; padding-left:22px; font-size:12px; color:var(--muted); max-height:180px; overflow-y:auto; }
+    #log-list li { margin:4px 0; overflow-wrap:anywhere; }
     [hidden] { display:none !important; }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+    @media (prefers-reduced-motion:reduce) { #loader { animation-duration:3s; } }
   </style>
 </head>
 <body>
@@ -36,141 +43,247 @@
     <div id="loader" role="status" aria-label="処理中"></div>
     <h1 id="msg" aria-live="assertive">読み込み中...</h1>
     <p id="sub-msg" aria-live="polite">そのままお待ちください</p>
-    <section id="log-panel" aria-label="処理ログ" aria-live="polite">
-      <h2>LOG</h2>
-      <ol id="log-list"><li>ページを開始しました</li></ol>
-    </section>
-    <button id="close-button" type="button" hidden>画面を閉じる</button>
-    <p class="hint">LINEの共有画面で送信先を選び、メッセージを確認してください。</p>
+    <div class="actions">
+      <button id="primary-button" type="button" hidden></button>
+      <button id="close-button" type="button" class="secondary" hidden>画面を閉じる</button>
+    </div>
+    <details id="log-panel">
+      <summary>処理ログ</summary>
+      <ol id="log-list"></ol>
+    </details>
   </section>
 </main>
 <script>
 (() => {
   'use strict';
 
-  // 元ファイルの値を維持しています。
+  // ===== 元ファイルの値（変更しない） =====
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec';
   const LIFF_ID = '2008690527-hcW4PPyp';
-  const REQUEST_TIMEOUT_MS = 3000;
+
+  // ===== 設定 =====
+  const INIT_TIMEOUT_MS = 10000;   // LIFF初期化の最大待ち時間
+  const PROFILE_TIMEOUT_MS = 8000; // プロフィール取得の最大待ち時間
+  const FETCH_TIMEOUT_MS = 5000;   // 予備送信(fetch)の最大待ち時間
+  const AUTO_CLOSE_MS = 1200;      // 成功後、LINE内で自動的に閉じるまでの時間（0で無効）
+
   const ACTIONS = Object.freeze({
     borrow: Object.freeze({ message: '借りました', log: '借りる' }),
     return: Object.freeze({ message: '返しました', log: '返す' })
   });
+
   const $ = (id) => document.getElementById(id);
-  let busy = false;
+  const els = {
+    loader: $('loader'), msg: $('msg'), sub: $('sub-msg'),
+    primary: $('primary-button'), close: $('close-button'),
+    logPanel: $('log-panel'), logList: $('log-list')
+  };
 
-  function addLog(message) {
-    const item = document.createElement('li');
-    item.textContent = `${new Date().toLocaleTimeString('ja-JP')} ${message}`;
-    $('log-list').appendChild(item);
+  const state = { action: null, profile: null, sending: false, sent: false, primaryHandler: null };
+
+  // ---------- 共通ユーティリティ ----------
+  function addLog(text) {
+    const li = document.createElement('li');
+    li.textContent = `${new Date().toLocaleTimeString('ja-JP', { hour12: false })} ${text}`;
+    els.logList.appendChild(li);
+    els.logList.scrollTop = els.logList.scrollHeight;
   }
 
-  function finish(title, detail, isError = false) {
-    $('loader').hidden = true;
-    $('msg').textContent = title;
-    $('msg').classList.toggle('error', isError);
-    $('sub-msg').textContent = detail;
-    $('close-button').hidden = false;
-    if (isError) addLog(`${title}: ${detail}`);
+  function withTimeout(promise, ms, label) {
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`${label}がタイムアウトしました。通信環境を確認してください`)), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
   }
 
-  function closePage() {
-    try {
-      if (window.liff && liff.isInClient()) { liff.closeWindow(); return; }
-    } catch (_) { /* LIFF初期化前なら通常の戻る操作を案内 */ }
-    finish('画面を閉じてください', 'LINEまたはブラウザーの戻る操作で閉じてください');
+  function inClient() {
+    try { return !!(window.liff && liff.isInClient()); } catch (_) { return false; }
   }
 
-  function sendLog(profile, action) {
-    // 元GASが受け取るJSON項目名を維持。sendBeaconは画面遷移中も送信を継続します。
-    // 成功は「送信キュー受付」であり、GASやシートへの保存完了を意味しません。
-    const payload = JSON.stringify({ userName: profile.displayName, userId: profile.userId, action });
-    const body = new Blob([payload], { type: 'text/plain;charset=UTF-8' });
-    if (navigator.sendBeacon && navigator.sendBeacon(GAS_URL, body)) {
-      return Promise.resolve('queued');
+  // kind: 'busy' | 'ok' | 'error' | 'info'
+  function render({ kind, title, detail, primary, showClose = true }) {
+    els.loader.hidden = kind !== 'busy';
+    els.msg.textContent = title;
+    els.msg.className = kind === 'ok' ? 'ok' : kind === 'error' ? 'error' : '';
+    els.sub.textContent = detail || '';
+
+    if (primary) {
+      els.primary.textContent = primary.label;
+      state.primaryHandler = primary.onClick;
+      els.primary.hidden = false;
+    } else {
+      els.primary.hidden = true;
+      state.primaryHandler = null;
     }
-
-    // sendBeaconが使えない場合も、keepalive付きでバックグラウンド送信します。
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-    return fetch(GAS_URL, {
-      method: 'POST', mode: 'no-cors', cache: 'no-store', keepalive: true,
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      body: payload, signal: controller.signal
-    }).then(() => 'sent').finally(() => clearTimeout(timeout));
+    els.close.hidden = kind === 'busy' || !showClose;
+    if (kind === 'error') { els.logPanel.open = true; addLog(`${title}: ${detail || ''}`); }
   }
 
-  async function main() {
-    $('close-button').addEventListener('click', closePage);
+  els.primary.addEventListener('click', () => { if (state.primaryHandler) state.primaryHandler(); });
+  els.close.addEventListener('click', () => {
+    if (inClient()) { try { liff.closeWindow(); return; } catch (_) { /* 下の案内へ */ } }
+    render({ kind: 'info', title: '画面を閉じてください', detail: 'ブラウザーの戻る操作またはタブを閉じてください', showClose: false });
+  });
+
+  // ---------- LOG送信（GAS） ----------
+  // 元GASが受け取るJSON項目名（userName / userId / action）を維持。
+  // 成功は「送信を受け付けた」ことを意味し、スプレッドシート保存の完了までは保証しません。
+  function sendLog(profile, actionLog) {
+    const payload = JSON.stringify({ userName: profile.displayName, userId: profile.userId, action: actionLog });
+
+    // 1) sendBeacon: 画面を閉じても送信が継続し最速
     try {
-      if (!window.liff) throw new Error('LIFF SDKを読み込めません。通信環境を確認してください');
-      addLog('LIFFを初期化しています');
-      await liff.init({ liffId: LIFF_ID });
-
-      // LIFFがURLパラメータを復元するため、modeはinit完了後に読み取ります。
-      const mode = new URLSearchParams(window.location.search).get('mode');
-      if (!Object.prototype.hasOwnProperty.call(ACTIONS, mode)) {
-        finish('起動URLを確認してください', 'modeにはborrowまたはreturnを指定してください', true);
-        return;
+      if (navigator.sendBeacon && navigator.sendBeacon(GAS_URL, new Blob([payload], { type: 'text/plain;charset=UTF-8' }))) {
+        return Promise.resolve('beacon');
       }
-      const action = ACTIONS[mode];
-      addLog(`処理: 鍵を${action.log}`);
+    } catch (_) { /* fetchへ */ }
 
-      if (!liff.isLoggedIn()) {
-        addLog('LINEログインへ移動します');
-        liff.login({ redirectUri: window.location.href });
-        return;
-      }
-      if (!liff.isApiAvailable('shareTargetPicker')) {
-        finish('送信機能を利用できません', 'LINE Developers ConsoleでShare Target Pickerが有効か、LINEアプリから開いているか確認してください', true);
-        return;
-      }
+    // 2) fetch(keepalive) を最大2回試行
+    const attempt = () => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+      return fetch(GAS_URL, {
+        method: 'POST', mode: 'no-cors', cache: 'no-store', keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: payload, signal: ctrl.signal
+      }).finally(() => clearTimeout(timer));
+    };
+    return attempt().catch(() => new Promise((r) => setTimeout(r, 600)).then(attempt)).then(() => 'fetch');
+  }
 
-      const profile = await liff.getProfile();
-      if (!profile || !profile.userId || !profile.displayName) throw new Error('LINEプロフィールを取得できません。LIFFのprofile scopeと同意を確認してください');
+  // ---------- 送信処理 ----------
+  async function share() {
+    if (state.sending || state.sent) return; // 二重送信防止
+    state.sending = true;
+    try {
+      const { action, profile } = state;
 
-      // 日時表示は端末設定に依存させず日本時間に固定します。
+      // 日時表示は端末設定に依存させず日本時間に固定
       const timeText = new Intl.DateTimeFormat('ja-JP', {
         timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric',
         hour: '2-digit', minute: '2-digit', hour12: false
       }).format(new Date());
-      const message = `${timeText}に${profile.displayName}が鍵を${action.message}`;
+      const text = `${timeText}に${profile.displayName}が鍵を${action.message}`;
 
-      $('msg').textContent = '送信先を選択';
-      $('sub-msg').textContent = '送信先と内容を確認してください';
+      render({ kind: 'busy', title: '送信先を選択', detail: 'LINEの画面で送信先を選んでください' });
       addLog('送信先を選択');
-      if (busy) return;
-      busy = true;
-      const result = await liff.shareTargetPicker([{ type: 'text', text: message }]);
+
+      const result = await liff.shareTargetPicker([{ type: 'text', text }]);
 
       if (!result) {
         addLog('送信先選択がキャンセルされました');
-        finish('送信はキャンセルされました', 'LINEメッセージは送信されていません');
+        render({
+          kind: 'info', title: '送信はキャンセルされました', detail: 'LINEメッセージは送信されていません',
+          primary: { label: 'もう一度送信先を選ぶ', onClick: share }
+        });
         return;
       }
 
+      state.sent = true;
       addLog('LINE送信完了');
-      // ログ通信の完了を待たずに完了画面を出し、操作待ちをなくします。
-      finish('送信完了', 'LINE通知を送信しました。LOGを確認してください');
-      addLog('LOG送信を開始');
+      render({ kind: 'ok', title: '送信完了', detail: 'LINE通知を送信しました' });
+
+      // LOGは完了画面を出した後に送る（待たせない）
       try {
-        const logState = await sendLog(profile, action.log);
-        addLog(logState === 'queued' ? 'LOG送信受付済み（保存結果は未確認）' : 'LOG通信完了（保存結果は未確認）');
+        const via = await sendLog(profile, action.log);
+        addLog(via === 'beacon' ? 'LOG送信受付済み（保存結果は未確認）' : 'LOG通信完了（保存結果は未確認）');
       } catch (err) {
-        const why = err && err.name === 'AbortError' ? 'LOG通信がタイムアウトしました' : `LOG通信エラー: ${err.message || String(err)}`;
+        const why = err && err.name === 'AbortError' ? 'LOG通信がタイムアウトしました' : `LOG通信エラー: ${(err && err.message) || err}`;
         addLog(why);
-        $('sub-msg').textContent = `通知送信済み。${why}`;
-        $('sub-msg').classList.add('error');
+        els.logPanel.open = true;
+        els.sub.textContent = `LINE通知は送信済みです。${why}`;
+        els.msg.className = 'ok';
+        return; // 失敗時は自動で閉じず、ログを確認できるようにする
+      }
+
+      if (AUTO_CLOSE_MS > 0 && inClient()) {
+        setTimeout(() => { try { liff.closeWindow(); } catch (_) { /* 閉じるボタンが残る */ } }, AUTO_CLOSE_MS);
       }
     } catch (err) {
-      console.error('LIFF処理エラー', err);
+      console.error('shareTargetPicker error', err);
       const detail = err && err.message ? err.message : String(err);
-      finish('処理を完了できませんでした', detail, true);
+      render({
+        kind: 'error', title: '送信できませんでした', detail,
+        primary: state.sent ? null : { label: 'もう一度試す', onClick: share }
+      });
     } finally {
-      busy = false;
+      state.sending = false;
     }
   }
 
+  // ---------- 起動 ----------
+  function readMode() {
+    const params = new URLSearchParams(window.location.search);
+    let mode = params.get('mode');
+    if (!mode) {
+      // LIFFがliff.stateにクエリを退避している場合の保険
+      const s = params.get('liff.state');
+      if (s) mode = new URLSearchParams(s.replace(/^[^?]*\?/, '')).get('mode');
+    }
+    return mode;
+  }
+
+  async function main() {
+    try {
+      if (window.__liffLoadFailed || !window.liff) {
+        throw new Error('LIFF SDKを読み込めません。通信環境を確認してください');
+      }
+
+      addLog('LIFFを初期化しています');
+      await withTimeout(liff.init({ liffId: LIFF_ID }), INIT_TIMEOUT_MS, 'LIFF初期化');
+
+      // modeはinit完了後に読み取る（LIFFがURLを復元するため）
+      const mode = readMode();
+      if (!Object.prototype.hasOwnProperty.call(ACTIONS, mode)) {
+        render({ kind: 'error', title: '起動URLを確認してください', detail: 'modeにはborrowまたはreturnを指定してください', showClose: true });
+        return;
+      }
+      state.action = ACTIONS[mode];
+      addLog(`処理: 鍵を${state.action.log}`);
+
+      if (!liff.isLoggedIn()) {
+        addLog('LINEログインへ移動します');
+        render({ kind: 'busy', title: 'ログイン中...', detail: 'LINEログイン画面へ移動します' });
+        liff.login({ redirectUri: window.location.href });
+        return;
+      }
+
+      if (!liff.isApiAvailable('shareTargetPicker')) {
+        render({
+          kind: 'error', title: '送信機能を利用できません',
+          detail: 'LINE Developers ConsoleでShare Target Pickerが有効か、LINEアプリから開いているか確認してください'
+        });
+        return;
+      }
+
+      const profile = await withTimeout(liff.getProfile(), PROFILE_TIMEOUT_MS, 'プロフィール取得');
+      if (!profile || !profile.userId || !profile.displayName) {
+        throw new Error('LINEプロフィールを取得できません。LIFFのprofile scopeと同意を確認してください');
+      }
+      state.profile = profile;
+
+      if (inClient()) {
+        // LINEアプリ内: そのまま送信先選択を開く（最速）
+        await share();
+      } else {
+        // 外部ブラウザー: ポップアップブロック回避のため、ユーザー操作で開く
+        render({
+          kind: 'info', title: `鍵を${state.action.log}`, detail: '下のボタンから送信先を選んでください',
+          primary: { label: '送信先を選ぶ', onClick: share }, showClose: false
+        });
+      }
+    } catch (err) {
+      console.error('LIFF処理エラー', err);
+      render({
+        kind: 'error', title: '処理を完了できませんでした',
+        detail: err && err.message ? err.message : String(err),
+        primary: { label: '再読み込み', onClick: () => window.location.reload() }
+      });
+    }
+  }
+
+  addLog('ページを開始しました');
   main();
 })();
 </script>
