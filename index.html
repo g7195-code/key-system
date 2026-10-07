@@ -1,96 +1,182 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>送信先の選択</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <title>鍵の貸し借り</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body { font-family: sans-serif; text-align: center; padding-top: 50px; color: #333; }
-    #msg { font-size: 18px; font-weight: bold; }
+    :root { color-scheme:light dark; --bg:#f0f2f5; --fg:#24272b; --muted:#626b75; --card:#fff; --green:#06c755; --error:#b42318; }
+    @media (prefers-color-scheme:dark) { :root { --bg:#121416; --fg:#f2f4f7; --muted:#aab2bd; --card:#1d2227; --green:#20c966; --error:#ff8a80; } }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:36px 16px calc(24px + env(safe-area-inset-bottom)); background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; text-align:center; }
+    main { max-width:640px; margin:auto; }
+    .card { padding:24px; border-radius:14px; background:var(--card); box-shadow:0 2px 12px #0002; }
+    #loader { width:44px; height:44px; margin:0 auto 16px; border:4px solid var(--muted); border-top-color:var(--green); border-radius:50%; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    h1 { margin:0 0 8px; font-size:20px; }
+    #sub-msg { margin:0; color:var(--muted); overflow-wrap:anywhere; }
+    #log-panel { margin-top:20px; padding:14px 16px; border:1px solid #8888; border-radius:10px; text-align:left; }
+    #log-panel h2 { margin:0 0 8px; font-size:16px; }
+    #log-list { margin:0; padding-left:22px; font-size:13px; }
+    #log-list li { margin:6px 0; overflow-wrap:anywhere; }
+    button { min-height:44px; margin-top:18px; padding:10px 18px; border:0; border-radius:8px; background:var(--green); color:#fff; font-size:16px; font-weight:650; }
+    button:focus-visible { outline:3px solid #1677ff; outline-offset:2px; }
+    .error { color:var(--error); }
+    .hint { margin:14px 0 0; color:var(--muted); font-size:12px; }
+    [hidden] { display:none !important; }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
   </style>
 </head>
 <body>
-  <div id="msg">読み込み中...</div>
+<main>
+  <section class="card" aria-labelledby="msg">
+    <div id="loader" role="status" aria-label="処理中"></div>
+    <h1 id="msg" aria-live="assertive">読み込み中...</h1>
+    <p id="sub-msg" aria-live="polite">そのままお待ちください</p>
+    <section id="log-panel" aria-label="処理ログ" aria-live="polite">
+      <h2>LOG</h2>
+      <ol id="log-list"><li>ページを開始しました</li></ol>
+    </section>
+    <button id="close-button" type="button" hidden>画面を閉じる</button>
+    <p class="hint">LINEの共有画面で送信先を選び、メッセージを確認してください。</p>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
 
-  <script>
-    // ▼▼▼ あなたのGAS URL (書き換えてください) ▼▼▼
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec";
-    
-    // ▼▼▼ LIFF ID (Share Target Picker対応版) ▼▼▼
-    const LIFF_ID = "2008690527-hcW4PPyp";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+  // 元ファイルの値を維持しています。
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbypl-6wiNPUOk3dPjCwUKoubeLl0862obaAlBjfbR3RdbEWmS9FubfhKk3isj6XK2z9/exec';
+  const LIFF_ID = '2008690527-hcW4PPyp';
+  const REQUEST_TIMEOUT_MS = 10000;
+  const ACTIONS = Object.freeze({
+    borrow: Object.freeze({ message: '借りました', log: '借りる' }),
+    return: Object.freeze({ message: '返しました', log: '返す' })
+  });
+  const $ = (id) => document.getElementById(id);
+  let busy = false;
 
-    async function main() {
-      const msgDiv = document.getElementById('msg');
+  function addLog(message) {
+    const item = document.createElement('li');
+    item.textContent = `${new Date().toLocaleTimeString('ja-JP')} ${message}`;
+    $('log-list').appendChild(item);
+  }
 
-      try {
-        await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) { liff.login(); return; }
+  function finish(title, detail, isError = false) {
+    $('loader').hidden = true;
+    $('msg').textContent = title;
+    $('msg').classList.toggle('error', isError);
+    $('sub-msg').textContent = detail;
+    $('close-button').hidden = false;
+    if (isError) addLog(`${title}: ${detail}`);
+  }
 
-        const params = new URLSearchParams(window.location.search);
-        const mode = params.get('mode');
+  function closePage() {
+    try {
+      if (window.liff && liff.isInClient()) { liff.closeWindow(); return; }
+    } catch (_) { /* LIFF初期化前なら通常の戻る操作を案内 */ }
+    finish('画面を閉じてください', 'LINEまたはブラウザーの戻る操作で閉じてください');
+  }
 
-        if (!mode) {
-          msgDiv.innerText = "エラー：NFCタグから起動してください";
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        const actionText = (mode === 'borrow') ? '借りました' : '返しました';
-        const logAction  = (mode === 'borrow') ? '借りる' : '返す';
-
-        // 1. GASにログを送信 (裏側で実行)
-        msgDiv.innerText = "ログ保存中...";
-        fetch(GAS_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userName: profile.displayName,
-            userId: profile.userId,
-            action: logAction
-          })
-        });
-
-        // 2. 日時を作成 (例: 12/15 14:00)
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const date  = now.getDate();
-        const hours = now.getHours();
-        const mins  = now.getMinutes().toString().padStart(2, '0'); // 分は2桁にする
-        const timeStr = `${month}/${date} ${hours}:${mins}`;
-
-        // 3. LINEで送信先を選ばせる
-        msgDiv.innerText = "送信先（グループ）を選んでください";
-        
-        if (liff.isApiAvailable('shareTargetPicker')) {
-          // メッセージを作成
-          const message = `${timeStr}に${profile.displayName}が鍵を${actionText}`;
-          
-          const res = await liff.shareTargetPicker([
-            {
-              type: "text",
-              text: message
-            }
-          ]);
-
-          if (res) {
-            msgDiv.innerText = "送信完了！";
-            setTimeout(() => { liff.closeWindow(); }, 1000);
-          } else {
-            msgDiv.innerText = "送信がキャンセルされました";
-            setTimeout(() => { liff.closeWindow(); }, 1000);
-          }
-        } else {
-          msgDiv.innerText = "エラー: Share Target Pickerが使えません。\n設定をONにしましたか？";
-        }
-
-      } catch (err) {
-        msgDiv.innerText = "エラー: " + err;
-      }
+  async function sendLog(profile, action) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      // 元GASが受け取るJSON項目名を維持。text/plainでCORS preflightを避けます。
+      // no-corsのため、応答本文を読んでGAS側の保存成否を確認することはできません。
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({
+          userName: profile.displayName,
+          userId: profile.userId,
+          action
+        }),
+        signal: controller.signal
+      });
+      return true;
+    } finally {
+      clearTimeout(timeout);
     }
-    main();
-  </script>
+  }
+
+  async function main() {
+    $('close-button').addEventListener('click', closePage);
+    try {
+      if (!window.liff) throw new Error('LIFF SDKを読み込めません。通信環境を確認してください');
+      addLog('LIFFを初期化しています');
+      await liff.init({ liffId: LIFF_ID });
+
+      // LIFFがURLパラメータを復元するため、modeはinit完了後に読み取ります。
+      const mode = new URLSearchParams(window.location.search).get('mode');
+      if (!Object.prototype.hasOwnProperty.call(ACTIONS, mode)) {
+        finish('起動URLを確認してください', 'modeにはborrowまたはreturnを指定してください', true);
+        return;
+      }
+      const action = ACTIONS[mode];
+      addLog(`処理: 鍵を${action.log}`);
+
+      if (!liff.isLoggedIn()) {
+        addLog('LINEログインへ移動します');
+        liff.login({ redirectUri: window.location.href });
+        return;
+      }
+      if (!liff.isApiAvailable('shareTargetPicker')) {
+        finish('送信機能を利用できません', 'LINE Developers ConsoleでShare Target Pickerが有効か、LINEアプリから開いているか確認してください', true);
+        return;
+      }
+
+      const profile = await liff.getProfile();
+      if (!profile || !profile.userId || !profile.displayName) throw new Error('LINEプロフィールを取得できません。LIFFのprofile scopeと同意を確認してください');
+
+      // 日時表示は端末設定に依存させず日本時間に固定します。
+      const timeText = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).format(new Date());
+      const message = `${timeText}に${profile.displayName}が鍵を${action.message}`;
+
+      $('msg').textContent = '送信先を選択してください';
+      $('sub-msg').textContent = 'LINEの共有画面で送信先と内容を確認してください';
+      addLog('送信先選択を開きます');
+      if (busy) return;
+      busy = true;
+      const result = await liff.shareTargetPicker([{ type: 'text', text: message }]);
+
+      if (!result) {
+        addLog('送信先選択がキャンセルされました');
+        finish('送信はキャンセルされました', 'LINEメッセージは送信されていません');
+        return;
+      }
+
+      addLog('LINE共有処理が完了しました');
+      $('msg').textContent = 'ログを保存しています...';
+      addLog('GASへログを送信しています');
+      try {
+        await sendLog(profile, action.log);
+        addLog('GASへの通信が完了しました（シートへの保存結果は未確認）');
+        finish('送信完了', 'LINEの共有処理が完了しました。ログが記録されたか、必要に応じてスプレッドシートを確認してください');
+      } catch (err) {
+        const why = err && err.name === 'AbortError' ? 'GAS通信が10秒でタイムアウトしました' : `GAS通信エラー: ${err.message || String(err)}`;
+        addLog(why);
+        finish('LINE通知は送信済みです', `ただしGASログを確認できません。${why}`, true);
+      }
+    } catch (err) {
+      console.error('LIFF処理エラー', err);
+      const detail = err && err.message ? err.message : String(err);
+      finish('処理を完了できませんでした', detail, true);
+    } finally {
+      busy = false;
+    }
+  }
+
+  main();
+})();
+</script>
 </body>
 </html>
