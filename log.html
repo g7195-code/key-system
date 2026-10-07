@@ -5,136 +5,155 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>部活動ポータル</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
+
     /* ▼▼▼ デザイン設定 (変数) ▼▼▼ */
     :root {
-      --bg-color: #f0f2f5; --text-main: #333; --text-sub: #666;
-      --card-bg: #fff; --border-color: #eee;
-      --input-bg: #fff; --input-border: #ccc;
-      --accent-color: #06c755;
-      --danger-color: #ff4b4b;
-      
-      --status-out-bg: #fff3cd; --status-out-text: #856404; --status-out-border: #ffeeba;
-      --status-in-bg: #d4edda; --status-in-text: #155724; --status-in-border: #c3e6cb;
-      --badge-borrow-bg: #ffeeba; --badge-borrow-text: #856404;
-      --badge-return-bg: #d4edda; --badge-return-text: #155724;
-      
-      --chat-bg: #fff; --chat-bubble: #f1f0f0; --chat-mine: #dcf8c6;
-      --report-bubble: #ffebee; --report-border: #ffcdd2;
-      
-      --weather-bg: linear-gradient(135deg, #6dd5ed, #2193b0); --weather-text: #fff;
-      --check-bg: #fff8e1; --check-border: #ffecb3; --check-text: #5d4037;
+      --bg-color: #e9edf2; --text-main: #16243a; --text-sub: #5b6678;
+      --card-bg: #fbfcfd; --border-color: #d5dce6;
+      --input-bg: #fff; --input-border: #b9c3d1;
+      --accent-color: #1f3d68; --accent-ink: #fff;
+      --danger-color: #c23b2a;
+
+      --status-out-bg: #f6e7bf; --status-out-text: #5e4300; --status-out-border: #c9962b;
+      --status-in-bg: #d9e8e1; --status-in-text: #14452f; --status-in-border: #3f8f6b;
+      --badge-borrow-bg: #f6e7bf; --badge-borrow-text: #5e4300;
+      --badge-return-bg: #d9e8e1; --badge-return-text: #14452f;
+
+      --chat-bg: #fbfcfd; --chat-bubble: #eef1f5; --chat-mine: #dcf8c6;
+      --report-bubble: #fbe9e6; --report-border: #e4a79e;
+
+      --weather-bg: #16243a; --weather-text: #f1f4f8;
+      --check-bg: #fbfcfd; --check-border: #16243a; --check-text: #16243a;
+      --radius: 6px;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: #121212; --text-main: #e4e6eb; --text-sub: #b0b3b8;
-        --card-bg: #242526; --border-color: #3e4042;
-        --input-bg: #3a3b3c; --input-border: #555;
-        --accent-color: #20c966;
-        --danger-color: #ff6b6b;
-        
-        --status-out-bg: #5c4d00; --status-out-text: #ffda6a; --status-out-border: #8a7300;
-        --status-in-bg: #10421d; --status-in-text: #85e8a7; --status-in-border: #1e5e2f;
-        --badge-borrow-bg: #8a7300; --badge-borrow-text: #ffda6a;
-        --badge-return-bg: #1e5e2f; --badge-return-text: #85e8a7;
-        
-        --chat-bg: #242526; --chat-bubble: #3a3b3c; --chat-mine: #005c4b;
-        --report-bubble: #4a0d0d; --report-border: #7f2e2e;
+        --bg-color: #0d141f; --text-main: #e6ebf2; --text-sub: #98a4b6;
+        --card-bg: #151e2c; --border-color: #28344a;
+        --input-bg: #0d141f; --input-border: #3a4960;
+        --accent-color: #8fb4ef; --accent-ink: #0d141f;
+        --danger-color: #ff8878;
 
-        --weather-bg: linear-gradient(135deg, #2c3e50, #4ca1af);
-        --check-bg: #3e2723; --check-border: #5d4037; --check-text: #ffcdd2;
+        --status-out-bg: #3a2c08; --status-out-text: #f3d68a; --status-out-border: #a67d1f;
+        --status-in-bg: #0f3324; --status-in-text: #9fdcbc; --status-in-border: #2f7d59;
+        --badge-borrow-bg: #3a2c08; --badge-borrow-text: #f3d68a;
+        --badge-return-bg: #0f3324; --badge-return-text: #9fdcbc;
+
+        --chat-bg: #151e2c; --chat-bubble: #1e293b; --chat-mine: #005c4b;
+        --report-bubble: #3a1814; --report-border: #7a3329;
+
+        --weather-bg: #1b2a42; --weather-text: #e6ebf2;
+        --check-bg: #151e2c; --check-border: #8fb4ef; --check-text: #e6ebf2;
       }
     }
 
-    body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; }
-    h2 { text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+      max-width: 640px; margin: 0 auto; padding: 28px 18px 48px;
+      background: var(--bg-color); color: var(--text-main); line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    h2 {
+      text-align: left; margin: 0 0 24px; padding-left: 14px;
+      font-size: 26px; font-weight: 900; letter-spacing: .04em; line-height: 1.3;
+      border-left: 6px solid var(--accent-color);
+    }
+    h3 { font-weight: 700; letter-spacing: .03em; }
+    :focus-visible { outline: 3px solid var(--accent-color); outline-offset: 2px; }
 
-    #screen-public, #screen-admin { animation: fadeIn 0.5s ease; }
+    #screen-public, #screen-admin { animation: fadeIn .4s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* 共通ボックススタイル */
-    .common-box { background-color: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; }
-    .common-box h3 { font-size: 15px; margin-top: 0; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-
-    /* ログインエリア */
-    .login-box {
-      background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      text-align: center; margin-bottom: 20px;
+    /* 共通パネル */
+    .login-box, .news-box, .chat-section, .history-section, #report-form-box {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: var(--radius); box-shadow: none;
     }
-    input[type="password"] { padding: 10px; font-size: 16px; border-radius: 5px; width: 60%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); }
-    button.login-btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 5px; background: var(--accent-color); color: white; font-weight: bold; }
+
+    /* ログイン */
+    .login-box { padding: 16px 18px; text-align: left; margin-bottom: 18px; border-top: 3px solid var(--accent-color); }
+    .login-box > p:first-child { margin: 0 0 10px !important; font-size: 13px !important; font-weight: 500; }
+    .login-box > div { justify-content: flex-start !important; gap: 8px !important; }
+    input[type="password"] { flex: 1; width: auto; min-width: 0; padding: 11px 12px; font-size: 16px; font-family: inherit; border-radius: 4px; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); }
+    button.login-btn { padding: 11px 24px; margin: 0; font-size: 15px; font-family: inherit; border: none; border-radius: 4px; cursor: pointer; background: var(--accent-color); color: var(--accent-ink); font-weight: 700; }
+    #error-msg { color: var(--danger-color) !important; margin: 6px 0 0 !important; }
+    #error-msg:empty { display: none; }
 
     /* お知らせ */
-    .news-box ul { padding-left: 20px; font-size: 13px; color: var(--text-sub); margin-bottom: 0; }
-    .news-box li { margin-bottom: 5px; }
-
-    /* カレンダー (NEW!) */
-    .calendar-frame { width: 100%; height: 400px; border: none; border-radius: 5px; }
+    .news-box { padding: 16px 18px; margin-bottom: 18px; }
+    .news-box h3 { font-size: 15px; margin: 0 0 10px; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+    .news-box ul { list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--text-sub); max-height: 168px; overflow-y: auto; }
+    .news-box li { padding: 6px 0; border-bottom: 1px dotted var(--border-color); }
+    .news-box li:last-child { border-bottom: none; }
 
     /* 掲示板 */
-    .chat-section { background: var(--chat-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 40px; }
-    .chat-form { display: flex; gap: 5px; margin-bottom: 15px; }
-    .chat-input-name { width: 25%; padding: 10px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); }
-    .chat-input-text { width: 50%; padding: 10px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); flex-grow: 1; }
-    .chat-btn { padding: 0 20px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .chat-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .chat-item { padding: 10px; border-radius: 8px; background-color: var(--chat-bubble); font-size: 14px; position: relative; }
-    .chat-item.report-item { background-color: var(--report-bubble); border: 1px solid var(--report-border); }
-    .chat-item.report-item .chat-text { color: var(--danger-color); font-weight: bold; }
-    .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 3px; display: flex; justify-content: space-between; }
-    .chat-name { font-weight: bold; color: var(--accent-color); }
-
-    /* 天気予報 */
-    #weather-box {
-      background: var(--weather-bg); color: var(--weather-text); padding: 15px; border-radius: 12px; margin-bottom: 20px;
-      display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    .chat-section { padding: 16px 18px; margin-bottom: 18px; }
+    .chat-section h3 { margin: 0 0 12px; font-size: 15px; }
+    .chat-form { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .chat-input-name, .chat-input-text, .report-input {
+      padding: 10px 12px; border-radius: 4px; border: 1px solid var(--input-border);
+      background: var(--input-bg); color: var(--text-main); font-family: inherit; font-size: 15px;
     }
-    .weather-left { display: flex; align-items: center; gap: 15px; }
-    .weather-icon { font-size: 36px; }
-    .weather-temp { font-size: 28px; font-weight: bold; }
-    .weather-loc { font-size: 13px; opacity: 0.9; }
+    .chat-input-name { width: 100%; flex: 1 1 100%; }
+    .chat-input-text { flex: 1 1 0; width: auto; min-width: 0; }
+    .chat-btn { padding: 0 22px; min-height: 42px; background: var(--accent-color); color: var(--accent-ink); border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-family: inherit; font-size: 14px; }
+    .chat-list { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .chat-list > div:not(.chat-item) { color: var(--text-sub) !important; padding: 14px 0; font-size: 13px; }
+    .chat-item { padding: 10px 12px; border-radius: 4px; background: var(--chat-bubble); font-size: 14px; border-left: 3px solid var(--accent-color); }
+    .chat-item.report-item { background: var(--report-bubble); border: 1px solid var(--report-border); border-left: 3px solid var(--danger-color); }
+    .chat-item.report-item .chat-text { color: var(--danger-color); font-weight: 700; }
+    .chat-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; display: flex; justify-content: space-between; gap: 10px; }
+    .chat-name { font-weight: 700; color: var(--text-main); }
+
+    /* 天気 */
+    #weather-box { background: var(--weather-bg); color: var(--weather-text); padding: 14px 18px; border-radius: var(--radius); margin-bottom: 18px; align-items: center; justify-content: space-between; }
+    .weather-left { display: flex; align-items: center; gap: 14px; }
+    .weather-icon { font-size: 34px; line-height: 1; }
+    .weather-temp { font-size: 30px; font-weight: 900; line-height: 1.1; letter-spacing: .02em; }
+    .weather-loc { font-size: 12px; opacity: .8; }
 
     /* 退出チェックリスト */
-    .checklist-box {
-      background-color: var(--check-bg); border: 2px solid var(--check-border); color: var(--check-text);
-      padding: 15px; border-radius: 12px; margin-bottom: 20px;
-    }
-    .checklist-box h3 { font-size: 15px; margin-top: 0; border-bottom: 1px solid var(--check-border); padding-bottom: 5px; display: flex; align-items: center; gap: 5px; }
-    .check-item { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .check-item input { margin-right: 10px; transform: scale(1.3); cursor: pointer; }
-    .check-complete { text-decoration: line-through; opacity: 0.6; }
-    #check-msg { display: none; text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--check-text); font-weight: bold; font-size: 18px; color: var(--accent-color); animation: popUp 0.5s ease; }
-    @keyframes popUp { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .checklist-box { background: var(--check-bg); border: 2px solid var(--check-border); color: var(--check-text); padding: 16px 18px 10px; border-radius: var(--radius); margin-bottom: 18px; }
+    .checklist-box h3 { font-size: 16px; margin: 0 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--check-border); display: flex; align-items: center; gap: 6px; }
+    .check-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; margin: 0; border-bottom: 1px solid var(--border-color); font-weight: 700; cursor: pointer; font-size: 15px; transition: opacity .2s; }
+    .check-item input { width: 22px; height: 22px; margin: 0; transform: none; flex: none; cursor: pointer; accent-color: var(--accent-color); }
+    .check-complete { text-decoration: line-through; opacity: .5; }
 
-    /* 備品報告ボタン */
-    .report-btn-area { text-align: center; margin-bottom: 50px; }
-    .report-open-btn {
-      background-color: var(--card-bg); color: var(--danger-color); border: 2px solid var(--danger-color);
-      padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
-    }
-    .report-open-btn:active { transform: scale(0.95); }
-    #report-form-box { display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px solid var(--danger-color); margin-bottom: 20px; }
-    .report-input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 5px; }
+    #check-msg { display: none; text-align: center; margin: 4px -18px -10px; padding: 16px; background: var(--accent-color); color: var(--accent-ink); font-weight: 700; font-size: 17px; animation: popUp .4s ease; }
+    @keyframes popUp { 0% { transform: translateY(6px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+
+    /* 備品報告 */
+    .report-btn-area { text-align: center; margin-bottom: 18px; }
+    .report-open-btn { background: transparent; color: var(--danger-color); border: 2px solid var(--danger-color); padding: 12px 22px; width: 100%; justify-content: center; border-radius: var(--radius); font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background .2s, color .2s; }
+    .report-open-btn:hover { background: var(--danger-color); color: var(--card-bg); }
+    #report-form-box { display: none; padding: 16px 18px; border: 2px solid var(--danger-color); margin-bottom: 14px; }
+    .report-input { width: 100%; margin-bottom: 10px; }
 
     /* 管理者画面 */
-    .logout-bar { text-align: right; margin-bottom: 10px; }
-    .logout-btn { background: #999; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-    .status-card { text-align: center; padding: 30px 20px; margin-bottom: 30px; border-radius: 15px; font-weight: bold; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: var(--card-bg); }
-    .status-out { background: var(--status-out-bg); color: var(--status-out-text); border: 2px solid var(--status-out-border); }
-    .status-in { background: var(--status-in-bg); color: var(--status-in-text); border: 2px solid var(--status-in-border); }
-    .history-section { padding: 15px; border-radius: 10px; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 12px 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
-    th { color: var(--text-sub); font-weight: normal; font-size: 12px; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .logout-bar { text-align: left; margin-bottom: 14px; }
+    .logout-btn { background: transparent; color: var(--text-sub); border: 1px solid var(--input-border); padding: 7px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-family: inherit; }
+    .status-card { text-align: left; padding: 32px 24px; margin-bottom: 22px; border-radius: var(--radius); font-weight: 900; font-size: 30px; line-height: 1.4; letter-spacing: .02em; background: var(--card-bg); border: 2px solid var(--border-color); border-left-width: 10px; }
+    .status-out { background: var(--status-out-bg); color: var(--status-out-text); border-color: var(--status-out-border); }
+    .status-in { background: var(--status-in-bg); color: var(--status-in-text); border-color: var(--status-in-border); }
+    .status-card span { display: block; margin-top: 6px; opacity: .85; }
+    .history-section { padding: 16px 18px; }
+    .history-section h3 { margin: 0 0 8px; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 11px 6px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { color: var(--text-sub); font-weight: 500; font-size: 12px; border-bottom: 2px solid var(--text-main); }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 12px; font-weight: 700; white-space: nowrap; }
     .badge-borrow { background: var(--badge-borrow-bg); color: var(--badge-borrow-text); }
     .badge-return { background: var(--badge-return-bg); color: var(--badge-return-text); }
-    .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; }
-    .page-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; background: var(--border-color); color: var(--text-main); }
-    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    #page-info { font-size: 14px; color: var(--text-sub); }
-    #loading-bar { text-align:center; margin-bottom: 10px; color: var(--text-sub); font-size:14px; }
+    .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 12px; }
+    .page-btn { padding: 9px 16px; border: 1px solid var(--input-border); border-radius: 4px; cursor: pointer; font-size: 14px; font-family: inherit; background: transparent; color: var(--text-main); }
+    .page-btn:disabled { opacity: .35; cursor: not-allowed; }
+    #page-info { font-size: 13px; color: var(--text-sub); }
+    #loading-bar { text-align: left; margin-bottom: 10px; color: var(--text-sub); font-size: 13px; }
+
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
@@ -144,7 +163,7 @@
   <div id="screen-public" style="display:block;">
 
     <div class="login-box">
-      <p style="margin:5px 0; font-size:14px; color:var(--text-sub);">管理者メニュー（履歴閲覧）</p>
+      <p style="margin:5px 0; font-size:14px; color:var(--text-sub);">パスワードを入力してください</p>
       <div style="display:flex; justify-content:center; gap:10px;">
         <input type="password" id="pass-input" placeholder="パスワード">
         <button class="login-btn" onclick="checkPassword()">解除</button>
@@ -152,11 +171,18 @@
       <p id="error-msg" style="color:red; font-size:13px; margin-top:5px;"></p>
     </div>
 
-    <div class="common-box news-box">
+    <div class="news-box">
       <h3>🔔 お知らせ・更新情報</h3>
       <ul>
-        <li>2025/01/05：予定表（カレンダー）を追加📅</li>
-        <li>2025/01/05：備品報告機能を追加🛠️</li>
+        <li>2025/01/03：備品報告機能を追加しました</li>
+        <li>2025/01/03：天気予報を追加しました</li>
+        <li>2025/01/03：チェックリストを追加しました</li>
+        <li>2025/01/03：掲示板機能を追加しました</li>
+        <li>2025/01/03：ダークモードに対応しました</li>
+        <li>2026/01/03：お知らせ・更新情報の欄を作りました！</li>
+        <li>2025/12/26：履歴が多いときにページをめくれるようにしました</li>
+        <li>2025/12/16：パスワード機能を追加しました</li>
+        <li>2024/12/16：鍵管理システムの運用を開始しました</li>
       </ul>
     </div>
 
@@ -169,11 +195,6 @@
       </div>
       <div id="loading-bar">読み込み中...</div>
       <div id="chat-list" class="chat-list"></div>
-    </div>
-
-    <div class="common-box">
-      <h3>📅 今月の予定</h3>
-      <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?height=400&wkst=1&bgcolor=%23ffffff&ctz=Asia%2FTokyo&showTitle=0&src=ja.japanese%23holiday%40group.v.calendar.google.com&color=%230B8043"></iframe>
     </div>
 
     <div id="weather-box" style="display:none;">
@@ -193,7 +214,10 @@
       <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> 窓・戸締まりはOK？</label>
       <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> ゴミは片付けた？</label>
       <label class="check-item"><input type="checkbox" onclick="toggleCheck(this)"> 忘れ物はない？</label>
-      <div id="check-msg">お疲れさまでした！<br>行ってらっしゃい！👋</div>
+      
+      <div id="check-msg">
+        お疲れさまでした！<br>行ってらっしゃい！👋
+      </div>
     </div>
 
     <div id="report-form-box">
@@ -234,8 +258,11 @@
   </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQRJxFq38wmoqsUAutkeq4XWIggjn2lMWZEGTSk4VdR6qIEJiyX9yXTLXn1wZNrThX/exec"; 
+    // ▼▼▼ 設定エリア ▼▼▼
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxLlKCFdJ_6ctUFcNRUMe_mmf4M0u0e0Z38Xf5vVT3nLRyb1I268XFmo8gLCUTqWTc5/exec"; 
     const MY_PASSWORD = "miyakyo";
+    // ▲▲▲▲▲▲▲▲▲▲▲▲
+
     const ITEMS_PER_PAGE = 50;
     let allLogData = [];
     let currentPage = 1;
@@ -339,20 +366,33 @@
       });
     }
 
+    // ▼▼▼ チェックリスト制御＆メッセージ表示 ▼▼▼
     function toggleCheck(checkbox) {
+      // 1. デザインの切り替え
       const label = checkbox.parentElement;
       if (checkbox.checked) {
         label.classList.add("check-complete");
       } else {
         label.classList.remove("check-complete");
       }
+
+      // 2. 全部チェックされたか確認
       const allChecks = document.querySelectorAll('.checklist-box input[type="checkbox"]');
       let allDone = true;
-      allChecks.forEach(box => { if (!box.checked) allDone = false; });
+      allChecks.forEach(box => {
+        if (!box.checked) allDone = false;
+      });
+
+      // 3. メッセージの出し分け
       const msg = document.getElementById('check-msg');
-      if (allDone) msg.style.display = 'block'; else msg.style.display = 'none';
+      if (allDone) {
+        msg.style.display = 'block';
+      } else {
+        msg.style.display = 'none';
+      }
     }
-    
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     function checkPassword() {
       if (document.getElementById('pass-input').value === MY_PASSWORD) {
         document.getElementById('screen-public').style.display = 'none';
@@ -361,6 +401,7 @@
       } else document.getElementById('error-msg').innerText = "パスワードが違います";
     }
     function logout() { location.reload(); }
+
     function updateStatusCard(data) {
       const statusDiv = document.getElementById('current-status');
       if (data.length > 0) {
